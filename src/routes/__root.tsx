@@ -45,6 +45,12 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Your Choice — Find your dream career in 5 minutes" },
+      { name: "description", content: "Your Career Compass is an interactive tool that suggests three personalized career paths based on your skills and priorities." },
+      { property: "og:description", content: "Your Career Compass is an interactive tool that suggests three personalized career paths based on your skills and priorities." },
+      { name: "twitter:description", content: "Your Career Compass is an interactive tool that suggests three personalized career paths based on your skills and priorities." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6c8df13a-af2f-4b99-95e5-274c07affbb8/id-preview-caf69b3b--ea3fed83-6e6a-4855-8e35-bab2d7c34871.lovable.app-1776778677193.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6c8df13a-af2f-4b99-95e5-274c07affbb8/id-preview-caf69b3b--ea3fed83-6e6a-4855-8e35-bab2d7c34871.lovable.app-1776778677193.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
