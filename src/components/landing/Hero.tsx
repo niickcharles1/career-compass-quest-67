@@ -33,7 +33,7 @@ export function Hero() {
           >
             See where your career
             <br />
-            choices <em className="text-electric">actually</em> lead.
+            choices <span className="text-electric">actually</span> lead.
           </motion.h1>
 
           <motion.p

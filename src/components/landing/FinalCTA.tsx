@@ -22,7 +22,7 @@ export function FinalCTA() {
             Start your map
           </p>
           <h2 className="mt-5 text-balance font-display text-5xl leading-[1] md:text-6xl lg:text-7xl">
-            Stop guessing. <em className="text-electric">Start mapping.</em>
+            Stop guessing. <span className="text-electric">Start mapping.</span>
           </h2>
           <p className="mx-auto mt-7 max-w-xl text-pretty text-base leading-relaxed text-paper/65 md:text-lg">
             Get your top 3 career paths in 5 minutes — with the trade-offs, the timelines, and the
