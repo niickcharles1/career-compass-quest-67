@@ -5,13 +5,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -39,76 +38,79 @@
   --color-electric: var(--electric);
   --color-growth: var(--growth);
   --color-warning: var(--warning);
-  --font-display: "Instrument Serif", "Fraunces", Georgia, serif;
+  --color-danger: var(--danger);
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.625rem; /* 10px — within 8–12px spec */
 
-  /* === Brand palette: structured, analytical, trustworthy === */
+  /* === Brand palette: exact hex spec === */
   /* Core */
-  --ink: oklch(0.22 0.04 250);          /* Deep navy ink — structure */
-  --paper: oklch(0.985 0.005 250);      /* Off-white — clarity */
-  --mist: oklch(0.95 0.008 250);        /* Light grey surface */
+  --ink: #1E3A5F;            /* Primary — Deep Analytical Blue */
+  --paper: #F8FAFC;          /* Background — very light grey */
+  --mist: #F1F5F9;           /* Subtle surface */
 
   /* Accents */
-  --electric: oklch(0.62 0.18 235);     /* Electric blue — insight */
-  --growth: oklch(0.62 0.13 165);       /* Muted teal/green — progress */
-  --warning: oklch(0.74 0.14 55);       /* Soft orange — trade-offs (sparingly) */
+  --electric: #14B8A6;       /* Secondary — Electric Teal */
+  --growth: #22C55E;         /* Success — muted green */
+  --warning: #F59E0B;        /* Warning — amber */
+  --danger: #EF4444;         /* Error — controlled red */
 
-  --background: oklch(0.985 0.005 250);
-  --foreground: oklch(0.22 0.04 250);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 250);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 250);
+  --background: #F8FAFC;
+  --foreground: #0F172A;     /* Primary text — near-black */
+  --card: #FFFFFF;           /* Surface */
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
 
-  /* Primary = deep blue (trust, intelligence) */
-  --primary: oklch(0.32 0.09 255);
-  --primary-foreground: oklch(0.985 0.005 250);
+  /* Primary = deep analytical blue */
+  --primary: #1E3A5F;
+  --primary-foreground: #F8FAFC;
 
-  --secondary: oklch(0.95 0.008 250);
-  --secondary-foreground: oklch(0.22 0.04 250);
-  --muted: oklch(0.96 0.005 250);
-  --muted-foreground: oklch(0.48 0.02 250);
-  --accent: oklch(0.94 0.02 235);
-  --accent-foreground: oklch(0.32 0.09 255);
-  --destructive: oklch(0.6 0.22 27);
-  --destructive-foreground: oklch(0.985 0.005 250);
-  --border: oklch(0.9 0.01 250);
-  --input: oklch(0.9 0.01 250);
-  --ring: oklch(0.62 0.18 235);
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #475569; /* Secondary text */
+  --accent: #14B8A6;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #F8FAFC;
+  --border: #E2E8F0;          /* Borders / dividers */
+  --input: #E2E8F0;
+  --ring: #14B8A6;
 
   /* Gradients & shadows — restrained, dashboard-like */
-  --gradient-ink: linear-gradient(180deg, oklch(0.24 0.04 250), oklch(0.16 0.04 250));
-  --gradient-electric: linear-gradient(135deg, oklch(0.62 0.18 235), oklch(0.5 0.16 250));
-  --shadow-card: 0 1px 2px oklch(0.22 0.04 250 / 0.04), 0 1px 0 oklch(0.22 0.04 250 / 0.02);
-  --shadow-elevated: 0 8px 24px -8px oklch(0.22 0.04 250 / 0.12), 0 2px 6px -2px oklch(0.22 0.04 250 / 0.06);
-  --shadow-focus: 0 0 0 4px oklch(0.62 0.18 235 / 0.15);
+  --gradient-ink: linear-gradient(180deg, #234670, #142a45);
+  --gradient-brand: linear-gradient(135deg, #1E3A5F 0%, #14B8A6 100%);
+  --gradient-soft: linear-gradient(180deg, #F8FAFC 0%, #EEF4F7 100%);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 0 rgba(15, 23, 42, 0.02);
+  --shadow-elevated: 0 8px 24px -8px rgba(15, 23, 42, 0.10), 0 2px 6px -2px rgba(15, 23, 42, 0.05);
+  --shadow-focus: 0 0 0 4px rgba(20, 184, 166, 0.18);
 
   --transition-base: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .dark {
-  --background: oklch(0.16 0.03 250);
-  --foreground: oklch(0.97 0.005 250);
-  --card: oklch(0.22 0.04 250);
-  --card-foreground: oklch(0.97 0.005 250);
-  --popover: oklch(0.22 0.04 250);
-  --popover-foreground: oklch(0.97 0.005 250);
-  --primary: oklch(0.7 0.16 235);
-  --primary-foreground: oklch(0.16 0.03 250);
-  --secondary: oklch(0.26 0.04 250);
-  --secondary-foreground: oklch(0.97 0.005 250);
-  --muted: oklch(0.26 0.04 250);
-  --muted-foreground: oklch(0.7 0.02 250);
-  --accent: oklch(0.3 0.06 235);
-  --accent-foreground: oklch(0.97 0.005 250);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.7 0.16 235);
+  --background: #0B1220;
+  --foreground: #F8FAFC;
+  --card: #0F1A2E;
+  --card-foreground: #F8FAFC;
+  --popover: #0F1A2E;
+  --popover-foreground: #F8FAFC;
+  --primary: #2A5A8F;
+  --primary-foreground: #F8FAFC;
+  --secondary: #1A2742;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1A2742;
+  --muted-foreground: #94A3B8;
+  --accent: #14B8A6;
+  --accent-foreground: #0B1220;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.10);
+  --ring: #14B8A6;
 }
 
 @layer base {
@@ -131,7 +133,7 @@
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
-    font-weight: 400;
+    font-weight: 600;
   }
 }
 
@@ -140,28 +142,28 @@
   .text-pretty { text-wrap: pretty; }
   .font-mono { font-family: var(--font-mono); }
   .bg-gradient-ink { background-image: var(--gradient-ink); }
-  .bg-gradient-electric { background-image: var(--gradient-electric); }
+  .bg-gradient-brand { background-image: var(--gradient-brand); }
+  .bg-gradient-soft { background-image: var(--gradient-soft); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-elevated { box-shadow: var(--shadow-elevated); }
 
   /* Subtle grid background — dashboard feel */
   .bg-grid {
     background-image:
-      linear-gradient(to right, oklch(0.22 0.04 250 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(0.22 0.04 250 / 0.04) 1px, transparent 1px);
+      linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
     background-size: 32px 32px;
   }
   .bg-grid-dark {
     background-image:
-      linear-gradient(to right, oklch(1 0 0 / 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(1 0 0 / 0.05) 1px, transparent 1px);
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 32px 32px;
   }
 
-  /* Dotted connector for decision trees / flowcharts */
   .border-dashed-soft {
     border-style: dashed;
-    border-color: oklch(0.22 0.04 250 / 0.2);
+    border-color: rgba(15, 23, 42, 0.18);
   }
 
   @keyframes pulse-soft {
