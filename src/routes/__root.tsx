@@ -29,26 +29,28 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Your Choice — Find your dream career in 5 minutes" },
+      { title: "Your Choice — The career decision engine for students" },
       {
         name: "description",
         content:
-          "Take the free Your Choice quiz: get 3 tailored career paths matched to your skills, work-style and life. Built for Gen Z by career experts.",
+          "See where your career choices actually lead. Compare paths side-by-side — salary, lifestyle, growth, 10-year outlook. Built with 47 career consultants.",
       },
       { name: "author", content: "Your Choice" },
-      { property: "og:title", content: "Your Choice — Find your dream career in 5 minutes" },
+      { property: "og:title", content: "Your Choice — The career decision engine for students" },
       {
         property: "og:description",
         content:
-          "Stop second-guessing your future. Get 3 tailored career paths in 5 minutes — free.",
+          "Decision clarity, not motivation. Compare careers side-by-side with real salary curves, trade-offs, and 10-year projections.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Your Choice — Find your dream career in 5 minutes" },
-      { name: "description", content: "Your Career Compass is an interactive tool that suggests three personalized career paths based on your skills and priorities." },
-      { property: "og:description", content: "Your Career Compass is an interactive tool that suggests three personalized career paths based on your skills and priorities." },
-      { name: "twitter:description", content: "Your Career Compass is an interactive tool that suggests three personalized career paths based on your skills and priorities." },
+      { name: "twitter:title", content: "Your Choice — The career decision engine for students" },
+      {
+        name: "twitter:description",
+        content:
+          "Decision clarity, not motivation. Compare careers side-by-side with real salary curves, trade-offs, and 10-year projections.",
+      },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6c8df13a-af2f-4b99-95e5-274c07affbb8/id-preview-caf69b3b--ea3fed83-6e6a-4855-8e35-bab2d7c34871.lovable.app-1776778677193.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/6c8df13a-af2f-4b99-95e5-274c07affbb8/id-preview-caf69b3b--ea3fed83-6e6a-4855-8e35-bab2d7c34871.lovable.app-1776778677193.png" },
     ],
@@ -58,7 +60,7 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap",
       },
     ],
   }),
