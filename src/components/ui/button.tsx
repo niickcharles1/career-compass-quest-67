@@ -10,11 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/92 shadow-card",
+          "bg-electric text-white hover:brightness-[1.08] shadow-card font-semibold",
         primary:
-          "bg-primary text-primary-foreground hover:bg-primary/92 shadow-card",
+          "bg-electric text-white hover:brightness-[1.08] shadow-card font-semibold",
         electric:
-          "bg-electric text-white hover:brightness-110 shadow-card font-semibold",
+          "bg-electric text-white hover:brightness-[1.08] shadow-card font-semibold",
         ink: "bg-ink text-paper hover:bg-ink/88",
         outline:
           "border border-ink/15 bg-card text-foreground hover:border-ink/35 hover:bg-mist",
