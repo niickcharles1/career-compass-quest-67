@@ -171,7 +171,27 @@ function ResultsPage() {
 
         <TimelineSection paths={results.paths} />
 
-        <div className="mt-16 rounded-xl border border-border bg-card p-8 text-center">
+        <div className="mt-16 grid gap-6 rounded-xl border border-border bg-gradient-to-br from-electric/5 to-card p-8 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-electric">
+              Ready to act?
+            </p>
+            <h2 className="mt-2 font-display text-2xl font-semibold">
+              Get a personalized roadmap to break in
+            </h2>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+              Tell us where you're starting from and upload your resume — we'll map the exact
+              steps to land your first role in any of these paths.
+            </p>
+          </div>
+          <Link to="/next-steps">
+            <Button variant="primary" className="w-full md:w-auto">
+              Plan my next steps <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="mt-8 rounded-xl border border-border bg-card p-8 text-center">
           <h2 className="font-display text-2xl font-semibold">Want to compare differently?</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
             Adjust your answers and re-run to see how different priorities reshape your top paths.

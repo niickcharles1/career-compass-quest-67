@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as QuizRouteImport } from './routes/quiz'
+import { Route as NextStepsRouteImport } from './routes/next-steps'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiNextstepsGenerateRouteImport } from './routes/api.nextsteps.generate'
 import { Route as ApiCareerGenerateRouteImport } from './routes/api.career.generate'
 
 const ResultsRoute = ResultsRouteImport.update({
@@ -25,6 +27,11 @@ const QuizRoute = QuizRouteImport.update({
   path: '/quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NextStepsRoute = NextStepsRouteImport.update({
+  id: '/next-steps',
+  path: '/next-steps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -33,6 +40,11 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNextstepsGenerateRoute = ApiNextstepsGenerateRouteImport.update({
+  id: '/api/nextsteps/generate',
+  path: '/api/nextsteps/generate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCareerGenerateRoute = ApiCareerGenerateRouteImport.update({
@@ -44,39 +56,69 @@ const ApiCareerGenerateRoute = ApiCareerGenerateRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/next-steps': typeof NextStepsRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
+  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/next-steps': typeof NextStepsRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
+  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/next-steps': typeof NextStepsRoute
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
+  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/next-steps'
+    | '/quiz'
+    | '/results'
+    | '/api/career/generate'
+    | '/api/nextsteps/generate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
-  id: '__root__' | '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
+  to:
+    | '/'
+    | '/auth'
+    | '/next-steps'
+    | '/quiz'
+    | '/results'
+    | '/api/career/generate'
+    | '/api/nextsteps/generate'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/next-steps'
+    | '/quiz'
+    | '/results'
+    | '/api/career/generate'
+    | '/api/nextsteps/generate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  NextStepsRoute: typeof NextStepsRoute
   QuizRoute: typeof QuizRoute
   ResultsRoute: typeof ResultsRoute
   ApiCareerGenerateRoute: typeof ApiCareerGenerateRoute
+  ApiNextstepsGenerateRoute: typeof ApiNextstepsGenerateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -95,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/next-steps': {
+      id: '/next-steps'
+      path: '/next-steps'
+      fullPath: '/next-steps'
+      preLoaderRoute: typeof NextStepsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -107,6 +156,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/nextsteps/generate': {
+      id: '/api/nextsteps/generate'
+      path: '/api/nextsteps/generate'
+      fullPath: '/api/nextsteps/generate'
+      preLoaderRoute: typeof ApiNextstepsGenerateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/career/generate': {
@@ -122,9 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  NextStepsRoute: NextStepsRoute,
   QuizRoute: QuizRoute,
   ResultsRoute: ResultsRoute,
   ApiCareerGenerateRoute: ApiCareerGenerateRoute,
+  ApiNextstepsGenerateRoute: ApiNextstepsGenerateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
