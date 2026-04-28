@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Loader2,
@@ -75,6 +75,12 @@ function NextStepsPage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumePath, setResumePath] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
+  const xhrRef = useRef<XMLHttpRequest | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [generating, setGenerating] = useState(false);
   const [plan, setPlan] = useState<NextStepsPlan | null>(null);
@@ -110,40 +116,133 @@ function NextStepsPage() {
     };
   }, [user, navigate]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateFile = (file: File): string | null => {
+    if (file.size > MAX_RESUME_BYTES) return "File is too large (8MB max).";
+    const okType =
+      ACCEPTED_TYPES.includes(file.type) || /\.(pdf|txt|md|docx?)$/i.test(file.name);
+    if (!okType) return "Use PDF, DOC, DOCX, or TXT.";
+    return null;
+  };
+
+  const uploadFile = useCallback(
+    async (file: File) => {
+      if (!user) return;
+      const err = validateFile(file);
+      if (err) {
+        setUploadError(err);
+        toast.error(err);
+        return;
+      }
+      setUploadError(null);
+      setUploading(true);
+      setUploadProgress(0);
+      setResumeFile(file);
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${user.id}/${Date.now()}-${safeName}`;
+
+      try {
+        // Get a signed upload URL so we can stream with XHR for real progress
+        const { data: signed, error: signErr } = await supabase.storage
+          .from("resumes")
+          .createSignedUploadUrl(path);
+        if (signErr || !signed) throw signErr || new Error("Couldn't get upload URL");
+
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhrRef.current = xhr;
+          xhr.open("PUT", signed.signedUrl, true);
+          xhr.setRequestHeader(
+            "Content-Type",
+            file.type || "application/octet-stream",
+          );
+          xhr.setRequestHeader("x-upsert", "false");
+          xhr.upload.onprogress = (ev) => {
+            if (ev.lengthComputable) {
+              setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+            }
+          };
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) resolve();
+            else reject(new Error(`Upload failed (${xhr.status})`));
+          };
+          xhr.onerror = () => reject(new Error("Network error during upload"));
+          xhr.onabort = () => reject(new Error("Upload cancelled"));
+          xhr.send(file);
+        });
+
+        setResumePath(path);
+        setUploadProgress(100);
+        toast.success("Resume uploaded.");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Upload failed";
+        console.error(e);
+        if (msg !== "Upload cancelled") {
+          setUploadError(msg);
+          toast.error(msg);
+        }
+        setResumeFile(null);
+        setResumePath(null);
+        setUploadProgress(0);
+      } finally {
+        xhrRef.current = null;
+        setUploading(false);
+      }
+    },
+    [user],
+  );
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
-    if (file.size > MAX_RESUME_BYTES) {
-      toast.error("Resume is too large (8MB max).");
-      return;
-    }
-    if (!ACCEPTED_TYPES.includes(file.type) && !file.name.match(/\.(pdf|txt|md|docx?)$/i)) {
-      toast.error("Use PDF, DOCX, or TXT.");
-      return;
-    }
-    setUploading(true);
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `${user.id}/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage
-      .from("resumes")
-      .upload(path, file, { upsert: false, contentType: file.type });
-    setUploading(false);
-    if (error) {
-      console.error(error);
-      toast.error("Couldn't upload resume.");
-      return;
-    }
-    setResumeFile(file);
-    setResumePath(path);
-    toast.success("Resume uploaded.");
+    if (file) void uploadFile(file);
+    // Allow re-selecting the same file later
+    if (e.target) e.target.value = "";
+  };
+
+  const cancelUpload = () => {
+    xhrRef.current?.abort();
   };
 
   const clearResume = async () => {
+    cancelUpload();
     if (resumePath) {
       await supabase.storage.from("resumes").remove([resumePath]).catch(() => {});
     }
     setResumeFile(null);
     setResumePath(null);
+    setUploadProgress(0);
+    setUploadError(null);
+  };
+
+  const onDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (uploading || resumeFile) return;
+    dragCounter.current += 1;
+    if (e.dataTransfer?.types?.includes("Files")) setIsDragging(true);
+  };
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragging(false);
+    }
+  };
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+  };
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragging(false);
+    if (uploading || resumeFile) return;
+    const file = e.dataTransfer?.files?.[0];
+    if (file) void uploadFile(file);
   };
 
   const canSubmit = useMemo(
@@ -373,57 +472,123 @@ function NextStepsPage() {
 
           <div>
             <label className="mb-3 block font-mono text-xs uppercase tracking-wider text-muted-foreground">
-              7. Upload your resume (optional, PDF / DOCX / TXT, 8MB max)
+              7. Upload your resume (optional, PDF / DOC / DOCX / TXT, 8MB max)
             </label>
-            {resumeFile ? (
-              <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <FileText className="h-5 w-5 shrink-0 text-electric" />
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">{resumeFile.name}</div>
-                    <div className="font-mono text-xs text-muted-foreground">
-                      {(resumeFile.size / 1024).toFixed(1)} KB
+
+            <div
+              onDragEnter={onDragEnter}
+              onDragLeave={onDragLeave}
+              onDragOver={onDragOver}
+              onDrop={onDrop}
+              role="region"
+              aria-label="Resume upload dropzone"
+              className={cn(
+                "relative rounded-md border-2 border-dashed bg-background transition",
+                isDragging
+                  ? "border-electric bg-electric/5"
+                  : uploadError
+                    ? "border-destructive/60"
+                    : "border-border hover:border-foreground/30",
+              )}
+            >
+              {resumeFile ? (
+                <div className="flex flex-col gap-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <FileText className="h-5 w-5 shrink-0 text-electric" />
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium">{resumeFile.name}</div>
+                        <div className="font-mono text-xs text-muted-foreground">
+                          {(resumeFile.size / 1024).toFixed(1)} KB
+                          {uploading && uploadProgress < 100 && (
+                            <> · {uploadProgress}%</>
+                          )}
+                          {!uploading && resumePath && (
+                            <span className="ml-2 inline-flex items-center gap-1 text-emerald-500">
+                              <CheckCircle2 className="h-3 w-3" /> Uploaded
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={uploading ? cancelUpload : clearResume}
+                      className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      aria-label={uploading ? "Cancel upload" : "Remove resume"}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
+
+                  {(uploading || (uploadProgress > 0 && uploadProgress < 100)) && (
+                    <div
+                      className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={uploadProgress}
+                    >
+                      <div
+                        className="h-full rounded-full bg-electric transition-[width] duration-150 ease-out"
+                        style={{ width: uploadProgress + "%" }}
+                      />
+                    </div>
+                  )}
                 </div>
+              ) : (
                 <button
                   type="button"
-                  onClick={clearResume}
-                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  aria-label="Remove resume"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <label
-                className={cn(
-                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-background py-8 text-center transition hover:border-foreground/30",
-                  uploading && "pointer-events-none opacity-60",
-                )}
-              >
-                {uploading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                ) : (
-                  <Upload className="h-5 w-5 text-muted-foreground" />
-                )}
-                <span className="text-sm text-muted-foreground">
-                  {uploading ? "Uploading…" : "Click to upload resume"}
-                </span>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept=".pdf,.txt,.md,.doc,.docx,application/pdf,text/plain"
-                  onChange={handleFileChange}
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                />
-              </label>
+                  className={cn(
+                    "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md py-10 text-center outline-none",
+                    uploading && "pointer-events-none opacity-60",
+                  )}
+                >
+                  <Upload
+                    className={cn(
+                      "h-6 w-6 transition",
+                      isDragging ? "text-electric" : "text-muted-foreground",
+                    )}
+                  />
+                  <span className="text-sm font-medium">
+                    {isDragging ? "Drop your resume here" : "Drag & drop or click to upload"}
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    PDF · DOC · DOCX · TXT — 8MB max
+                  </span>
+                </button>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.txt,.md,.doc,.docx,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+
+              {isDragging && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-md bg-electric/10 font-mono text-xs uppercase tracking-wider text-electric">
+                  Release to upload
+                </div>
+              )}
+            </div>
+
+            {uploadError ? (
+              <p className="mt-2 flex items-start gap-1.5 text-xs text-destructive">
+                <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+                {uploadError}
+              </p>
+            ) : (
+              <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
+                <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+                PDFs and TXT are read directly by the AI. DOC/DOCX are stored but not parsed —
+                paste key bullets into the notes field.
+              </p>
             )}
-            <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
-              <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
-              PDFs and TXT are read directly. DOCX is stored but not parsed — paste key bullets
-              into the notes field.
-            </p>
           </div>
 
           <div className="flex flex-col-reverse items-stretch justify-end gap-3 sm:flex-row sm:items-center">
