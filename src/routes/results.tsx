@@ -1,11 +1,26 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Loader2, LogOut, RefreshCw, TrendingUp, Briefcase, AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Loader2,
+  LogOut,
+  RefreshCw,
+  TrendingUp,
+  ArrowRight,
+  CheckCircle2,
+  GraduationCap,
+  AlertTriangle,
+  Sparkles,
+  ChevronDown,
+  Columns3,
+  LayoutGrid,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import type { CareerResults, CareerPath } from "./api.career.generate";
+import { cn } from "@/lib/utils";
+import type { CareerResults, CareerPath, TradeOff, EducationStep } from "./api.career.generate";
 
 export const Route = createFileRoute("/results")({
   component: ResultsPage,
@@ -14,11 +29,15 @@ export const Route = createFileRoute("/results")({
       { title: "Your top 3 career paths · Your Choice" },
       {
         name: "description",
-        content: "Your tailored career map: 3 paths compared with salary, lifestyle, and trade-offs.",
+        content:
+          "Your tailored career map: 3 paths with match scores, trade-offs, and education steps.",
       },
     ],
   }),
 });
+
+type ViewMode = "cards" | "compare";
+type TabKey = "tradeoffs" | "education" | "next";
 
 function ResultsPage() {
   const { user, loading, signOut } = useAuth();
@@ -27,6 +46,7 @@ function ResultsPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hydrating, setHydrating] = useState(true);
   const [retaking, setRetaking] = useState(false);
+  const [view, setView] = useState<ViewMode>("cards");
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -44,11 +64,7 @@ function ResultsPage() {
         .limit(1)
         .maybeSingle();
       if (!active) return;
-      if (error || !data) {
-        navigate({ to: "/quiz" });
-        return;
-      }
-      if (!data.completed || !data.career_results) {
+      if (error || !data || !data.completed || !data.career_results) {
         navigate({ to: "/quiz" });
         return;
       }
@@ -92,7 +108,7 @@ function ResultsPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="container mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <div className="container mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link to="/" className="font-display text-lg font-medium">
             Your Choice
           </Link>
@@ -108,29 +124,52 @@ function ResultsPage() {
         </div>
       </header>
 
-      <main className="container mx-auto max-w-5xl px-6 py-12">
-        <div className="mb-12 max-w-2xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-electric">
-            Your career map
-          </p>
-          <h1 className="mt-3 font-display text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-            Your top 3 paths
-          </h1>
-          <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground">
-            {results.summary}
-          </p>
+      <main className="container mx-auto max-w-6xl px-6 py-12">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-electric">
+              Your career map
+            </p>
+            <h1 className="mt-3 font-display text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
+              Your top 3 paths
+            </h1>
+            <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground">
+              {results.summary}
+            </p>
+          </div>
+
+          <div className="inline-flex shrink-0 rounded-lg border border-border bg-card p-1">
+            <ViewToggleButton
+              active={view === "cards"}
+              onClick={() => setView("cards")}
+              icon={<LayoutGrid className="h-4 w-4" />}
+              label="Cards"
+            />
+            <ViewToggleButton
+              active={view === "compare"}
+              onClick={() => setView("compare")}
+              icon={<Columns3 className="h-4 w-4" />}
+              label="Compare"
+            />
+          </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {results.paths.map((path, i) => (
-            <PathCard key={i} path={path} rank={i + 1} />
-          ))}
+        <div className="mt-10">
+          {view === "cards" ? (
+            <div className="grid gap-6 lg:grid-cols-3">
+              {results.paths.map((path, i) => (
+                <PathCard key={i} path={path} rank={i + 1} defaultExpanded={i === 0} />
+              ))}
+            </div>
+          ) : (
+            <CompareTable paths={results.paths} />
+          )}
         </div>
 
         <div className="mt-16 rounded-xl border border-border bg-card p-8 text-center">
           <h2 className="font-display text-2xl font-semibold">Want to compare differently?</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Adjust your answers and re-run to see how different priorities change your top paths.
+            Adjust your answers and re-run to see how different priorities reshape your top paths.
           </p>
           <Button variant="primary" className="mt-6" onClick={handleRetake} disabled={retaking}>
             {retaking ? (
@@ -149,81 +188,363 @@ function ResultsPage() {
   );
 }
 
-function PathCard({ path, rank }: { path: CareerPath; rank: number }) {
+function ViewToggleButton({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
   return (
-    <article className="flex flex-col rounded-xl border border-border bg-card p-6 shadow-card">
-      <div className="flex items-start justify-between">
-        <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          #{rank}
-        </span>
-        <div className="rounded-full bg-electric/10 px-3 py-1">
-          <span className="font-mono text-xs font-semibold text-electric">
-            {Math.round(path.match)}% match
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+        active
+          ? "bg-electric text-white shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+function PathCard({
+  path,
+  rank,
+  defaultExpanded,
+}: {
+  path: CareerPath;
+  rank: number;
+  defaultExpanded: boolean;
+}) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [tab, setTab] = useState<TabKey>("tradeoffs");
+  const matchPct = Math.round(path.match);
+
+  return (
+    <motion.article
+      layout
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={cn(
+        "flex flex-col rounded-xl border bg-card shadow-card transition-colors",
+        rank === 1 ? "border-electric/40" : "border-border",
+      )}
+    >
+      <div className="p-6">
+        <div className="flex items-start justify-between">
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            Match #{rank}
+            {rank === 1 && (
+              <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-electric/10 px-2 py-0.5 text-[10px] font-semibold text-electric">
+                <Sparkles className="h-2.5 w-2.5" /> Top fit
+              </span>
+            )}
           </span>
+          <MatchScore value={matchPct} />
         </div>
-      </div>
 
-      <h3 className="mt-4 font-display text-xl font-semibold leading-tight">{path.title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{path.why}</p>
+        <h3 className="mt-4 font-display text-xl font-semibold leading-tight">{path.title}</h3>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{path.why}</p>
 
-      <div className="mt-6 grid grid-cols-3 gap-2 rounded-lg border border-border bg-background p-3">
-        {[
-          { label: "Year 1", v: path.salary.year1 },
-          { label: "Year 5", v: path.salary.year5 },
-          { label: "Year 10", v: path.salary.year10 },
-        ].map((s) => (
-          <div key={s.label} className="text-center">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-              {s.label}
-            </p>
-            <p className="mt-1 font-display text-sm font-semibold">{s.v}</p>
-          </div>
-        ))}
-      </div>
-
-      <dl className="mt-5 space-y-3 text-sm">
-        <div className="flex gap-2">
-          <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Lifestyle
-            </dt>
-            <dd className="mt-0.5 text-foreground">{path.lifestyle}</dd>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Growth outlook
-            </dt>
-            <dd className="mt-0.5 text-foreground">{path.growth}</dd>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-          <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Trade-offs
-            </dt>
-            <dd className="mt-0.5 text-foreground">{path.risks}</dd>
-          </div>
-        </div>
-      </dl>
-
-      <div className="mt-5 border-t border-border pt-5">
-        <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          First steps
-        </p>
-        <ul className="mt-3 space-y-2">
-          {path.firstSteps.map((s, i) => (
-            <li key={i} className="flex gap-2 text-sm leading-relaxed">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-electric" />
-              <span>{s}</span>
-            </li>
+        <div className="mt-6 grid grid-cols-3 gap-2 rounded-lg border border-border bg-background p-3">
+          {[
+            { label: "Year 1", v: path.salary.year1 },
+            { label: "Year 5", v: path.salary.year5 },
+            { label: "Year 10", v: path.salary.year10 },
+          ].map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                {s.label}
+              </p>
+              <p className="mt-1 font-display text-sm font-semibold">{s.v}</p>
+            </div>
           ))}
-        </ul>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+          <InlineFact icon={<TrendingUp className="h-4 w-4" />} label="Growth" value={path.growth} />
+          <InlineFact label="Lifestyle" value={path.lifestyle} />
+        </div>
       </div>
-    </article>
+
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="flex items-center justify-between border-t border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-mist hover:text-foreground"
+        aria-expanded={expanded}
+      >
+        <span>{expanded ? "Hide details" : "See trade-offs & education path"}</span>
+        <ChevronDown
+          className={cn("h-4 w-4 transition-transform duration-200", expanded && "rotate-180")}
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="overflow-hidden border-t border-border"
+          >
+            <div className="px-6 pb-6 pt-5">
+              <div className="flex gap-1 rounded-lg border border-border bg-background p-1">
+                <TabButton active={tab === "tradeoffs"} onClick={() => setTab("tradeoffs")}>
+                  Trade-offs
+                </TabButton>
+                <TabButton active={tab === "education"} onClick={() => setTab("education")}>
+                  Education
+                </TabButton>
+                <TabButton active={tab === "next"} onClick={() => setTab("next")}>
+                  Next 2 weeks
+                </TabButton>
+              </div>
+
+              <div className="mt-5 min-h-[180px]">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={tab}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {tab === "tradeoffs" && <TradeoffsView items={path.tradeoffs} />}
+                    {tab === "education" && <EducationView items={path.education} />}
+                    {tab === "next" && <NextStepsView items={path.firstSteps} />}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.article>
+  );
+}
+
+function MatchScore({ value }: { value: number }) {
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <div className="relative h-14 w-14">
+      <svg className="h-full w-full -rotate-90" viewBox="0 0 50 50">
+        <circle
+          cx="25"
+          cy="25"
+          r={radius}
+          fill="none"
+          stroke="hsl(var(--border, 220 13% 91%))"
+          strokeWidth="3"
+          className="text-border"
+        />
+        <motion.circle
+          cx="25"
+          cy="25"
+          r={radius}
+          fill="none"
+          strokeWidth="3"
+          strokeLinecap="round"
+          className="stroke-electric"
+          initial={{ strokeDasharray: `0 ${circumference}` }}
+          animate={{ strokeDasharray: `${(value / 100) * circumference} ${circumference}` }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="font-mono text-xs font-semibold text-foreground">{value}%</span>
+      </div>
+    </div>
+  );
+}
+
+function InlineFact({
+  icon,
+  label,
+  value,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-background p-3">
+      <p className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+        {icon}
+        {label}
+      </p>
+      <p className="mt-1 text-xs leading-snug text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+        active
+          ? "bg-card text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function TradeoffsView({ items }: { items: TradeOff[] }) {
+  const severityStyles = {
+    low: "bg-growth/10 text-growth border-growth/20",
+    medium: "bg-warning/10 text-warning border-warning/20",
+    high: "bg-danger/10 text-danger border-danger/20",
+  } as const;
+
+  return (
+    <ul className="space-y-3">
+      {items.map((t, i) => (
+        <li key={i} className="rounded-lg border border-border bg-background p-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="flex items-center gap-1.5 text-sm font-semibold">
+              <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground" />
+              {t.label}
+            </p>
+            <span
+              className={cn(
+                "rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider",
+                severityStyles[t.severity],
+              )}
+            >
+              {t.severity}
+            </span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{t.detail}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function EducationView({ items }: { items: EducationStep[] }) {
+  return (
+    <ol className="relative space-y-4 border-l border-border pl-5">
+      {items.map((step, i) => (
+        <li key={i} className="relative">
+          <span className="absolute -left-[27px] flex h-5 w-5 items-center justify-center rounded-full border border-electric bg-card">
+            <GraduationCap className="h-2.5 w-2.5 text-electric" />
+          </span>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-electric">
+                {step.stage}
+              </p>
+              <p className="mt-0.5 text-sm font-semibold text-foreground">{step.title}</p>
+            </div>
+            <span className="shrink-0 rounded-full border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+              {step.duration}
+            </span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function NextStepsView({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-2">
+      {items.map((s, i) => (
+        <li key={i} className="flex gap-2 rounded-lg border border-border bg-background p-3 text-sm leading-relaxed">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-electric" />
+          <span>{s}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function CompareTable({ paths }: { paths: CareerPath[] }) {
+  const rows = useMemo(
+    () => [
+      { label: "Match", render: (p: CareerPath) => `${Math.round(p.match)}%` },
+      { label: "Year 1", render: (p: CareerPath) => p.salary.year1 },
+      { label: "Year 5", render: (p: CareerPath) => p.salary.year5 },
+      { label: "Year 10", render: (p: CareerPath) => p.salary.year10 },
+      { label: "Lifestyle", render: (p: CareerPath) => p.lifestyle },
+      { label: "Growth", render: (p: CareerPath) => p.growth },
+      {
+        label: "Top trade-off",
+        render: (p: CareerPath) =>
+          p.tradeoffs[0] ? `${p.tradeoffs[0].label} — ${p.tradeoffs[0].detail}` : "—",
+      },
+      {
+        label: "Education path",
+        render: (p: CareerPath) =>
+          p.education.map((e) => `${e.title} (${e.duration})`).join(" → "),
+      },
+    ],
+    [],
+  );
+
+  return (
+    <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-card">
+      <table className="w-full min-w-[720px] text-left text-sm">
+        <thead>
+          <tr className="border-b border-border bg-mist">
+            <th className="w-40 px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+              Compare
+            </th>
+            {paths.map((p, i) => (
+              <th key={i} className="px-5 py-3 font-display text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    #{i + 1}
+                  </span>
+                  {p.title}
+                </div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, ri) => (
+            <tr
+              key={row.label}
+              className={cn("border-b border-border last:border-0", ri % 2 === 1 && "bg-mist/40")}
+            >
+              <td className="px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                {row.label}
+              </td>
+              {paths.map((p, i) => (
+                <td key={i} className="px-5 py-3 align-top text-foreground">
+                  {row.render(p)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

@@ -3,6 +3,19 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
+export interface TradeOff {
+  label: string;
+  detail: string;
+  severity: "low" | "medium" | "high";
+}
+
+export interface EducationStep {
+  stage: string;
+  title: string;
+  detail: string;
+  duration: string;
+}
+
 export interface CareerPath {
   title: string;
   match: number;
@@ -10,7 +23,8 @@ export interface CareerPath {
   salary: { year1: string; year5: string; year10: string };
   lifestyle: string;
   growth: string;
-  risks: string;
+  tradeoffs: TradeOff[];
+  education: EducationStep[];
   firstSteps: string[];
 }
 
@@ -49,7 +63,37 @@ const careerJsonSchema = {
           },
           lifestyle: { type: "string" },
           growth: { type: "string" },
-          risks: { type: "string" },
+          tradeoffs: {
+            type: "array",
+            minItems: 3,
+            maxItems: 4,
+            items: {
+              type: "object",
+              properties: {
+                label: { type: "string" },
+                detail: { type: "string" },
+                severity: { type: "string", enum: ["low", "medium", "high"] },
+              },
+              required: ["label", "detail", "severity"],
+              additionalProperties: false,
+            },
+          },
+          education: {
+            type: "array",
+            minItems: 3,
+            maxItems: 5,
+            items: {
+              type: "object",
+              properties: {
+                stage: { type: "string" },
+                title: { type: "string" },
+                detail: { type: "string" },
+                duration: { type: "string" },
+              },
+              required: ["stage", "title", "detail", "duration"],
+              additionalProperties: false,
+            },
+          },
           firstSteps: {
             type: "array",
             items: { type: "string" },
@@ -57,7 +101,7 @@ const careerJsonSchema = {
             maxItems: 5,
           },
         },
-        required: ["title", "match", "why", "salary", "lifestyle", "growth", "risks", "firstSteps"],
+        required: ["title", "match", "why", "salary", "lifestyle", "growth", "tradeoffs", "education", "firstSteps"],
         additionalProperties: false,
       },
     },
@@ -151,7 +195,12 @@ ${answers.location || "(not provided)"}
 NON-NEGOTIABLES & CONSTRAINTS:
 ${answers.constraints || "(none specified)"}
 
-Generate 3 distinct career paths that genuinely fit. Be specific, honest about trade-offs, and use real numbers (USD ranges). Match scores 70-95 — never identical, no path should look the same. Cover a range: one safer/established, one high-growth, one differentiated.`;
+Generate 3 distinct career paths that genuinely fit. Be specific, honest about trade-offs, and use real numbers (USD ranges). Match scores 70-95 — never identical. Cover a range: one safer/established, one high-growth, one differentiated.
+
+For each path:
+- "tradeoffs": 3-4 concrete trade-offs (e.g. "On-call rotations", "Slow comp ramp", "High burnout risk"). Each has a short label, a 1-2 sentence detail, and severity (low/medium/high).
+- "education": 3-5 sequential education/credentialing steps from where a student is today to entering the field. Each has a stage label ("Undergrad", "Internship", "Bootcamp", "Master's", "Certification", "Self-study"), a specific title (e.g. "BS in Computer Science or Math"), a 1-sentence detail explaining why/what, and a realistic duration ("3-4 years", "6 months", "summer").
+- "firstSteps": 3-5 concrete actions they can do in the next 2 weeks.`;
 
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
