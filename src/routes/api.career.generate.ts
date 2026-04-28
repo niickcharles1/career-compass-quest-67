@@ -200,7 +200,7 @@ Generate 3 distinct career paths that genuinely fit. Be specific, honest about t
 For each path:
 - "tradeoffs": 3-4 concrete trade-offs (e.g. "On-call rotations", "Slow comp ramp", "High burnout risk"). Each has a short label, a 1-2 sentence detail, and severity (low/medium/high).
 - "education": 3-5 sequential education/credentialing steps from where a student is today to entering the field. Each has a stage label ("Undergrad", "Internship", "Bootcamp", "Master's", "Certification", "Self-study"), a specific title (e.g. "BS in Computer Science or Math"), a 1-sentence detail explaining why/what, and a realistic duration ("3-4 years", "6 months", "summer").
-- "firstSteps": 3-5 concrete actions they can do in the next 2 weeks.
+- "firstSteps": 3-5 concrete actions they can do in the next 2 weeks.`;
 
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
