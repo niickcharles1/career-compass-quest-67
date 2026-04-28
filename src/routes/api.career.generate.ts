@@ -3,6 +3,19 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
+export interface TradeOff {
+  label: string;
+  detail: string;
+  severity: "low" | "medium" | "high";
+}
+
+export interface EducationStep {
+  stage: string;
+  title: string;
+  detail: string;
+  duration: string;
+}
+
 export interface CareerPath {
   title: string;
   match: number;
@@ -10,7 +23,8 @@ export interface CareerPath {
   salary: { year1: string; year5: string; year10: string };
   lifestyle: string;
   growth: string;
-  risks: string;
+  tradeoffs: TradeOff[];
+  education: EducationStep[];
   firstSteps: string[];
 }
 
@@ -49,7 +63,37 @@ const careerJsonSchema = {
           },
           lifestyle: { type: "string" },
           growth: { type: "string" },
-          risks: { type: "string" },
+          tradeoffs: {
+            type: "array",
+            minItems: 3,
+            maxItems: 4,
+            items: {
+              type: "object",
+              properties: {
+                label: { type: "string" },
+                detail: { type: "string" },
+                severity: { type: "string", enum: ["low", "medium", "high"] },
+              },
+              required: ["label", "detail", "severity"],
+              additionalProperties: false,
+            },
+          },
+          education: {
+            type: "array",
+            minItems: 3,
+            maxItems: 5,
+            items: {
+              type: "object",
+              properties: {
+                stage: { type: "string" },
+                title: { type: "string" },
+                detail: { type: "string" },
+                duration: { type: "string" },
+              },
+              required: ["stage", "title", "detail", "duration"],
+              additionalProperties: false,
+            },
+          },
           firstSteps: {
             type: "array",
             items: { type: "string" },
@@ -57,7 +101,7 @@ const careerJsonSchema = {
             maxItems: 5,
           },
         },
-        required: ["title", "match", "why", "salary", "lifestyle", "growth", "risks", "firstSteps"],
+        required: ["title", "match", "why", "salary", "lifestyle", "growth", "tradeoffs", "education", "firstSteps"],
         additionalProperties: false,
       },
     },
