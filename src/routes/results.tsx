@@ -169,6 +169,8 @@ function ResultsPage() {
           )}
         </div>
 
+        <TimelineSection paths={results.paths} />
+
         <div className="mt-16 rounded-xl border border-border bg-card p-8 text-center">
           <h2 className="font-display text-2xl font-semibold">Want to compare differently?</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
