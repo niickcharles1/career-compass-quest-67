@@ -36,6 +36,12 @@ const inputSchema = z.object({
   yearsExperience: z.string().max(50),
   currentRole: z.string().max(200).optional().default(""),
   notes: z.string().max(2000).optional().default(""),
+  goalTimeframe: z
+    .enum(["3_months", "6_months", "12_months", "2_years", "5_years"])
+    .optional()
+    .default("12_months"),
+  primaryGoal: z.string().max(500).optional().default(""),
+  targetSalary: z.string().max(50).optional().default(""),
   resumePath: z.string().max(500).optional().nullable(),
   resumeMime: z.string().max(100).optional().nullable(),
 });
