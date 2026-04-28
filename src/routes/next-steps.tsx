@@ -472,57 +472,123 @@ function NextStepsPage() {
 
           <div>
             <label className="mb-3 block font-mono text-xs uppercase tracking-wider text-muted-foreground">
-              7. Upload your resume (optional, PDF / DOCX / TXT, 8MB max)
+              7. Upload your resume (optional, PDF / DOC / DOCX / TXT, 8MB max)
             </label>
-            {resumeFile ? (
-              <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <FileText className="h-5 w-5 shrink-0 text-electric" />
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">{resumeFile.name}</div>
-                    <div className="font-mono text-xs text-muted-foreground">
-                      {(resumeFile.size / 1024).toFixed(1)} KB
+
+            <div
+              onDragEnter={onDragEnter}
+              onDragLeave={onDragLeave}
+              onDragOver={onDragOver}
+              onDrop={onDrop}
+              role="region"
+              aria-label="Resume upload dropzone"
+              className={cn(
+                "relative rounded-md border-2 border-dashed bg-background transition",
+                isDragging
+                  ? "border-electric bg-electric/5"
+                  : uploadError
+                    ? "border-destructive/60"
+                    : "border-border hover:border-foreground/30",
+              )}
+            >
+              {resumeFile ? (
+                <div className="flex flex-col gap-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <FileText className="h-5 w-5 shrink-0 text-electric" />
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium">{resumeFile.name}</div>
+                        <div className="font-mono text-xs text-muted-foreground">
+                          {(resumeFile.size / 1024).toFixed(1)} KB
+                          {uploading && uploadProgress < 100 && (
+                            <> · {uploadProgress}%</>
+                          )}
+                          {!uploading && resumePath && (
+                            <span className="ml-2 inline-flex items-center gap-1 text-emerald-500">
+                              <CheckCircle2 className="h-3 w-3" /> Uploaded
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={uploading ? cancelUpload : clearResume}
+                      className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      aria-label={uploading ? "Cancel upload" : "Remove resume"}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
+
+                  {(uploading || (uploadProgress > 0 && uploadProgress < 100)) && (
+                    <div
+                      className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={uploadProgress}
+                    >
+                      <div
+                        className="h-full rounded-full bg-electric transition-[width] duration-150 ease-out"
+                        style={{ width: uploadProgress + "%" }}
+                      />
+                    </div>
+                  )}
                 </div>
+              ) : (
                 <button
                   type="button"
-                  onClick={clearResume}
-                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  aria-label="Remove resume"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <label
-                className={cn(
-                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-background py-8 text-center transition hover:border-foreground/30",
-                  uploading && "pointer-events-none opacity-60",
-                )}
-              >
-                {uploading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                ) : (
-                  <Upload className="h-5 w-5 text-muted-foreground" />
-                )}
-                <span className="text-sm text-muted-foreground">
-                  {uploading ? "Uploading…" : "Click to upload resume"}
-                </span>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept=".pdf,.txt,.md,.doc,.docx,application/pdf,text/plain"
-                  onChange={handleFileChange}
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                />
-              </label>
+                  className={cn(
+                    "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md py-10 text-center outline-none",
+                    uploading && "pointer-events-none opacity-60",
+                  )}
+                >
+                  <Upload
+                    className={cn(
+                      "h-6 w-6 transition",
+                      isDragging ? "text-electric" : "text-muted-foreground",
+                    )}
+                  />
+                  <span className="text-sm font-medium">
+                    {isDragging ? "Drop your resume here" : "Drag & drop or click to upload"}
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    PDF · DOC · DOCX · TXT — 8MB max
+                  </span>
+                </button>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.txt,.md,.doc,.docx,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+
+              {isDragging && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-md bg-electric/10 font-mono text-xs uppercase tracking-wider text-electric">
+                  Release to upload
+                </div>
+              )}
+            </div>
+
+            {uploadError ? (
+              <p className="mt-2 flex items-start gap-1.5 text-xs text-destructive">
+                <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+                {uploadError}
+              </p>
+            ) : (
+              <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
+                <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+                PDFs and TXT are read directly by the AI. DOC/DOCX are stored but not parsed —
+                paste key bullets into the notes field.
+              </p>
             )}
-            <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
-              <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
-              PDFs and TXT are read directly. DOCX is stored but not parsed — paste key bullets
-              into the notes field.
-            </p>
           </div>
 
           <div className="flex flex-col-reverse items-stretch justify-end gap-3 sm:flex-row sm:items-center">
