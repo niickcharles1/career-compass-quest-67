@@ -13,6 +13,7 @@ import { Route as ResultsRouteImport } from './routes/results'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiNextstepsGenerateRouteImport } from './routes/api.nextsteps.generate'
 import { Route as ApiCareerGenerateRouteImport } from './routes/api.career.generate'
 
 const ResultsRoute = ResultsRouteImport.update({
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNextstepsGenerateRoute = ApiNextstepsGenerateRouteImport.update({
+  id: '/api/nextsteps/generate',
+  path: '/api/nextsteps/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCareerGenerateRoute = ApiCareerGenerateRouteImport.update({
   id: '/api/career/generate',
   path: '/api/career/generate',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
+  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
+  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/quiz': typeof QuizRoute
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
+  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/quiz'
+    | '/results'
+    | '/api/career/generate'
+    | '/api/nextsteps/generate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
-  id: '__root__' | '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
+  to:
+    | '/'
+    | '/auth'
+    | '/quiz'
+    | '/results'
+    | '/api/career/generate'
+    | '/api/nextsteps/generate'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/quiz'
+    | '/results'
+    | '/api/career/generate'
+    | '/api/nextsteps/generate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +105,7 @@ export interface RootRouteChildren {
   QuizRoute: typeof QuizRoute
   ResultsRoute: typeof ResultsRoute
   ApiCareerGenerateRoute: typeof ApiCareerGenerateRoute
+  ApiNextstepsGenerateRoute: typeof ApiNextstepsGenerateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -109,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/nextsteps/generate': {
+      id: '/api/nextsteps/generate'
+      path: '/api/nextsteps/generate'
+      fullPath: '/api/nextsteps/generate'
+      preLoaderRoute: typeof ApiNextstepsGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/career/generate': {
       id: '/api/career/generate'
       path: '/api/career/generate'
@@ -125,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuizRoute: QuizRoute,
   ResultsRoute: ResultsRoute,
   ApiCareerGenerateRoute: ApiCareerGenerateRoute,
+  ApiNextstepsGenerateRoute: ApiNextstepsGenerateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
