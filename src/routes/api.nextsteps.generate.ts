@@ -36,6 +36,12 @@ const inputSchema = z.object({
   yearsExperience: z.string().max(50),
   currentRole: z.string().max(200).optional().default(""),
   notes: z.string().max(2000).optional().default(""),
+  goalTimeframe: z
+    .enum(["3_months", "6_months", "12_months", "2_years", "5_years"])
+    .optional()
+    .default("12_months"),
+  primaryGoal: z.string().max(500).optional().default(""),
+  targetSalary: z.string().max(50).optional().default(""),
   resumePath: z.string().max(500).optional().nullable(),
   resumeMime: z.string().max(100).optional().nullable(),
 });
@@ -116,6 +122,14 @@ const STATUS_LABELS: Record<string, string> = {
   between_jobs: "Between jobs",
   career_changer: "Career changer",
   self_employed: "Self-employed / freelancer",
+};
+
+const TIMEFRAME_LABELS: Record<string, string> = {
+  "3_months": "within 3 months",
+  "6_months": "within 6 months",
+  "12_months": "within 12 months",
+  "2_years": "within 1-2 years",
+  "5_years": "within 3-5 years",
 };
 
 function jsonResponse(body: unknown, status = 200) {
@@ -244,6 +258,11 @@ CURRENT SITUATION:
 - Years of experience: ${input.yearsExperience || "n/a"}
 - Current role/title: ${input.currentRole || "n/a"}
 - Additional notes from them: ${input.notes || "(none)"}
+
+THEIR GOALS:
+- Target timeframe: ${TIMEFRAME_LABELS[input.goalTimeframe]}
+- Target salary: ${input.targetSalary || "(not specified)"}
+- Their #1 goal in their own words: ${input.primaryGoal || "(not specified)"}
 
 ${resumeText ? `RESUME (text):\n${resumeText}\n` : ""}${resumePdfBase64 ? "(Resume PDF attached as inline data — read it carefully to assess strengths and gaps.)" : ""}
 
