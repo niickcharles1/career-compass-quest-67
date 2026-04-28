@@ -171,7 +171,7 @@ export const Route = createFileRoute("/api/career/generate")({
           return jsonResponse({ error: "Session not found" }, 404);
         }
 
-        const answers = (session.answers as Record<string, string>) ?? {};
+        const answers: Record<string, string> = (session.answers ?? {}) as Record<string, string>;
         const userPrompt = `Based on this student's structured self-assessment, generate 3 tailored career paths.
 
 SKILLS THEY'RE GOOD AT:
@@ -205,7 +205,7 @@ For each path:
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            Authorization: "Bearer " + LOVABLE_API_KEY,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
