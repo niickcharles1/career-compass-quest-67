@@ -415,9 +415,9 @@ function TabButton({
 
 function TradeoffsView({ items }: { items: TradeOff[] }) {
   const severityStyles = {
-    low: "bg-success/10 text-success border-success/20",
+    low: "bg-growth/10 text-growth border-growth/20",
     medium: "bg-warning/10 text-warning border-warning/20",
-    high: "bg-destructive/10 text-destructive border-destructive/20",
+    high: "bg-danger/10 text-danger border-danger/20",
   } as const;
 
   return (
