@@ -75,6 +75,12 @@ function NextStepsPage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumePath, setResumePath] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
+  const xhrRef = useRef<XMLHttpRequest | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [generating, setGenerating] = useState(false);
   const [plan, setPlan] = useState<NextStepsPlan | null>(null);
@@ -110,40 +116,133 @@ function NextStepsPage() {
     };
   }, [user, navigate]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateFile = (file: File): string | null => {
+    if (file.size > MAX_RESUME_BYTES) return "File is too large (8MB max).";
+    const okType =
+      ACCEPTED_TYPES.includes(file.type) || /\.(pdf|txt|md|docx?)$/i.test(file.name);
+    if (!okType) return "Use PDF, DOC, DOCX, or TXT.";
+    return null;
+  };
+
+  const uploadFile = useCallback(
+    async (file: File) => {
+      if (!user) return;
+      const err = validateFile(file);
+      if (err) {
+        setUploadError(err);
+        toast.error(err);
+        return;
+      }
+      setUploadError(null);
+      setUploading(true);
+      setUploadProgress(0);
+      setResumeFile(file);
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${user.id}/${Date.now()}-${safeName}`;
+
+      try {
+        // Get a signed upload URL so we can stream with XHR for real progress
+        const { data: signed, error: signErr } = await supabase.storage
+          .from("resumes")
+          .createSignedUploadUrl(path);
+        if (signErr || !signed) throw signErr || new Error("Couldn't get upload URL");
+
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhrRef.current = xhr;
+          xhr.open("PUT", signed.signedUrl, true);
+          xhr.setRequestHeader(
+            "Content-Type",
+            file.type || "application/octet-stream",
+          );
+          xhr.setRequestHeader("x-upsert", "false");
+          xhr.upload.onprogress = (ev) => {
+            if (ev.lengthComputable) {
+              setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+            }
+          };
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) resolve();
+            else reject(new Error(`Upload failed (${xhr.status})`));
+          };
+          xhr.onerror = () => reject(new Error("Network error during upload"));
+          xhr.onabort = () => reject(new Error("Upload cancelled"));
+          xhr.send(file);
+        });
+
+        setResumePath(path);
+        setUploadProgress(100);
+        toast.success("Resume uploaded.");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Upload failed";
+        console.error(e);
+        if (msg !== "Upload cancelled") {
+          setUploadError(msg);
+          toast.error(msg);
+        }
+        setResumeFile(null);
+        setResumePath(null);
+        setUploadProgress(0);
+      } finally {
+        xhrRef.current = null;
+        setUploading(false);
+      }
+    },
+    [user],
+  );
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
-    if (file.size > MAX_RESUME_BYTES) {
-      toast.error("Resume is too large (8MB max).");
-      return;
-    }
-    if (!ACCEPTED_TYPES.includes(file.type) && !file.name.match(/\.(pdf|txt|md|docx?)$/i)) {
-      toast.error("Use PDF, DOCX, or TXT.");
-      return;
-    }
-    setUploading(true);
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `${user.id}/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage
-      .from("resumes")
-      .upload(path, file, { upsert: false, contentType: file.type });
-    setUploading(false);
-    if (error) {
-      console.error(error);
-      toast.error("Couldn't upload resume.");
-      return;
-    }
-    setResumeFile(file);
-    setResumePath(path);
-    toast.success("Resume uploaded.");
+    if (file) void uploadFile(file);
+    // Allow re-selecting the same file later
+    if (e.target) e.target.value = "";
+  };
+
+  const cancelUpload = () => {
+    xhrRef.current?.abort();
   };
 
   const clearResume = async () => {
+    cancelUpload();
     if (resumePath) {
       await supabase.storage.from("resumes").remove([resumePath]).catch(() => {});
     }
     setResumeFile(null);
     setResumePath(null);
+    setUploadProgress(0);
+    setUploadError(null);
+  };
+
+  const onDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (uploading || resumeFile) return;
+    dragCounter.current += 1;
+    if (e.dataTransfer?.types?.includes("Files")) setIsDragging(true);
+  };
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragging(false);
+    }
+  };
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+  };
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragging(false);
+    if (uploading || resumeFile) return;
+    const file = e.dataTransfer?.files?.[0];
+    if (file) void uploadFile(file);
   };
 
   const canSubmit = useMemo(
