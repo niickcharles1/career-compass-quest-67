@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResultsRouteImport } from './routes/results'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiCareerGenerateRouteImport } from './routes/api.career.generate'
 
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuizRoute = QuizRouteImport.update({
   id: '/quiz',
   path: '/quiz',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/quiz': typeof QuizRoute
+  '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/quiz': typeof QuizRoute
+  '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
 }
 export interface FileRoutesById {
@@ -52,25 +60,34 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/quiz': typeof QuizRoute
+  '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/quiz' | '/api/career/generate'
+  fullPaths: '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/quiz' | '/api/career/generate'
-  id: '__root__' | '/' | '/auth' | '/quiz' | '/api/career/generate'
+  to: '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
+  id: '__root__' | '/' | '/auth' | '/quiz' | '/results' | '/api/career/generate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   QuizRoute: typeof QuizRoute
+  ResultsRoute: typeof ResultsRoute
   ApiCareerGenerateRoute: typeof ApiCareerGenerateRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/quiz': {
       id: '/quiz'
       path: '/quiz'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   QuizRoute: QuizRoute,
+  ResultsRoute: ResultsRoute,
   ApiCareerGenerateRoute: ApiCareerGenerateRoute,
 }
 export const routeTree = rootRouteImport
