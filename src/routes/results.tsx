@@ -14,6 +14,9 @@ import {
   ChevronDown,
   Columns3,
   LayoutGrid,
+  Calendar,
+  Briefcase,
+  Rocket,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
