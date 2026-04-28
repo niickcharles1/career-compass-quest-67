@@ -45,10 +45,10 @@ export function Nav() {
         </nav>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" className="hidden md:inline-flex" asChild>
-            <a href="#start">Sign in</a>
+            <a href="/auth">Sign in</a>
           </Button>
           <Button variant="primary" size="sm" asChild>
-            <a href="#start">Start free</a>
+            <a href="/auth">Start free</a>
           </Button>
         </div>
       </div>
@@ -60,7 +60,7 @@ export function StickyMobileCTA() {
   return (
     <div className="fixed bottom-3 left-3 right-3 z-40 md:hidden">
       <Button variant="primary" size="lg" className="w-full shadow-elevated" asChild>
-        <a href="#start">See my career map →</a>
+        <a href="/auth">See my career map →</a>
       </Button>
     </div>
   );
