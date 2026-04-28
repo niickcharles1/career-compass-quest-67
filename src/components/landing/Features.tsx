@@ -300,7 +300,7 @@ export function Features() {
                   ))}
                 </ul>
                 <a
-                  href="#start"
+                  href="/auth"
                   className="mt-7 inline-flex items-center gap-1.5 text-sm font-semibold text-electric transition-all hover:gap-2.5"
                 >
                   Try this on your own decision <ArrowRight className="h-4 w-4" />
