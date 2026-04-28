@@ -158,7 +158,7 @@ Generate 3 distinct career paths that genuinely fit. Be specific, honest about t
 
     const { error: updateErr } = await supabase
       .from("quiz_sessions")
-      .update({ career_results: parsed, completed: true })
+      .update({ career_results: parsed as unknown as never, completed: true })
       .eq("id", data.sessionId);
 
     if (updateErr) console.error("Failed to save results", updateErr);
