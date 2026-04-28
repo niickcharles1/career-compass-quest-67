@@ -553,3 +553,153 @@ function CompareTable({ paths }: { paths: CareerPath[] }) {
     </div>
   );
 }
+
+const TIMELINE_MILESTONES = [
+  {
+    key: "year1" as const,
+    label: "Year 1",
+    headline: "Entry & foundation",
+    icon: Rocket,
+    blurb: "Where you land right after graduation — first role, first paycheck.",
+  },
+  {
+    key: "year5" as const,
+    label: "Year 5",
+    headline: "Mid-career traction",
+    icon: Briefcase,
+    blurb: "Specialization kicks in. Promotions, lateral moves, or first leadership.",
+  },
+  {
+    key: "year10" as const,
+    label: "Year 10",
+    headline: "Senior trajectory",
+    icon: TrendingUp,
+    blurb: "Senior IC, management, or pivot into adjacent high-leverage roles.",
+  },
+];
+
+function TimelineSection({ paths }: { paths: CareerPath[] }) {
+  const pathColors = ["text-electric", "text-foreground", "text-muted-foreground"];
+  const pathDots = ["bg-electric", "bg-foreground", "bg-muted-foreground"];
+
+  return (
+    <section className="mt-16">
+      <div className="flex items-end justify-between gap-6">
+        <div className="max-w-xl">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-electric">
+            <Calendar className="mr-1.5 inline h-3 w-3" /> 10-year outlook
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
+            Where each path takes you
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Side-by-side projection of salary, role, and lifestyle across Year 1, 5, and 10.
+          </p>
+        </div>
+        <div className="hidden shrink-0 flex-wrap gap-3 md:flex">
+          {paths.map((p, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs">
+              <span className={cn("h-2 w-2 rounded-full", pathDots[i])} />
+              <span className="font-medium text-foreground">{p.title}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
+        {/* Desktop: horizontal timeline */}
+        <div className="hidden md:block">
+          <div className="relative px-8 pt-10">
+            <div className="absolute left-8 right-8 top-[60px] h-px bg-border" />
+            <div className="relative grid grid-cols-3 gap-8">
+              {TIMELINE_MILESTONES.map((m, idx) => {
+                const Icon = m.icon;
+                return (
+                  <div key={m.key} className="relative">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-electric bg-card shadow-card">
+                        <Icon className="h-4 w-4 text-electric" />
+                      </div>
+                      <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-electric">
+                        {m.label}
+                      </p>
+                      <p className="mt-1 font-display text-base font-semibold">{m.headline}</p>
+                      <p className="mt-1.5 max-w-[200px] text-xs leading-relaxed text-muted-foreground">
+                        {m.blurb}
+                      </p>
+                    </div>
+
+                    <div className="mt-6 space-y-3">
+                      {paths.map((p, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 8 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true, margin: "-50px" }}
+                          transition={{ duration: 0.3, delay: idx * 0.1 + i * 0.05 }}
+                          className="rounded-lg border border-border bg-background p-3"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", pathDots[i])} />
+                            <p className={cn("truncate text-[11px] font-semibold", pathColors[i])}>
+                              {p.title}
+                            </p>
+                          </div>
+                          <p className="mt-2 font-display text-lg font-semibold text-foreground">
+                            {p.salary[m.key]}
+                          </p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="border-t border-border bg-mist/40 px-8 py-4 text-center text-xs text-muted-foreground">
+            Salary ranges are AI-projected based on your inputs and current market data.
+          </div>
+        </div>
+
+        {/* Mobile: stacked per milestone */}
+        <div className="md:hidden">
+          {TIMELINE_MILESTONES.map((m, idx) => {
+            const Icon = m.icon;
+            return (
+              <div
+                key={m.key}
+                className={cn("p-5", idx > 0 && "border-t border-border")}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full border border-electric bg-card">
+                    <Icon className="h-4 w-4 text-electric" />
+                  </div>
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-electric">
+                      {m.label}
+                    </p>
+                    <p className="font-display text-sm font-semibold">{m.headline}</p>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-2">
+                  {paths.map((p, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-lg border border-border bg-background p-3"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", pathDots[i])} />
+                        <p className="truncate text-xs font-semibold text-foreground">{p.title}</p>
+                      </div>
+                      <p className="font-display text-sm font-semibold">{p.salary[m.key]}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
