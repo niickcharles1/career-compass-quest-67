@@ -34,8 +34,9 @@ export function FinalCTA() {
               variant="electric"
               size="lg"
               className="bg-electric text-white shadow-[0_8px_24px_-8px_oklch(0.62_0.18_235_/_0.6)]"
+              asChild
             >
-              See my career map <ArrowRight className="h-4 w-4" />
+              <a href="/auth">See my career map <ArrowRight className="h-4 w-4" /></a>
             </Button>
             <Button
               variant="outline"
