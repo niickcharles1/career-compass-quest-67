@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Check, Loader2, LogOut } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, LogOut, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,28 +14,44 @@ export const Route = createFileRoute("/quiz")({
   head: () => ({
     meta: [
       { title: "Your career quiz · Your Choice" },
-      { name: "description", content: "Answer a few structured questions and get your top 3 career paths." },
+      {
+        name: "description",
+        content:
+          "Answer a few structured questions and get your top 3 career paths with real trade-offs.",
+      },
     ],
   }),
 });
 
-const STEPS = [
+type Step = {
+  key: string;
+  title: string;
+  helper?: string;
+  type: "textarea" | "radio";
+  placeholder?: string;
+  options?: { value: string; label: string }[];
+  optional?: boolean;
+};
+
+const STEPS: Step[] = [
   {
     key: "skills",
     title: "What are you actually good at?",
-    helper: "Be specific. Skip the resume language.",
-    type: "textarea" as const,
+    helper: "Be specific. Skip resume language — write like you'd tell a friend.",
+    type: "textarea",
+    placeholder: "e.g. Breaking down hard topics so other people get them, fast pattern-spotting in data, calm under deadline pressure…",
   },
   {
     key: "subjects",
-    title: "Which subjects energize you?",
-    helper: "List the topics you'd read about for fun.",
-    type: "textarea" as const,
+    title: "Which subjects or topics energize you?",
+    helper: "What would you read about for fun on a Sunday?",
+    type: "textarea",
+    placeholder: "e.g. Behavioral economics, climate tech, design systems, neuroscience, history of finance…",
   },
   {
     key: "priority",
     title: "What matters most in the next 5 years?",
-    type: "radio" as const,
+    type: "radio",
     options: [
       { value: "income", label: "Income — high earnings early" },
       { value: "stability", label: "Stability — predictable, low-risk path" },
@@ -45,20 +61,41 @@ const STEPS = [
     ],
   },
   {
+    key: "workstyle",
+    title: "How do you prefer to work?",
+    type: "radio",
+    options: [
+      { value: "deep_solo", label: "Deep solo work — long focused stretches" },
+      { value: "small_team", label: "Tight small team — close collaboration" },
+      { value: "people_facing", label: "People-facing — meetings, clients, stakeholders" },
+      { value: "build_ship", label: "Build & ship — making things others use" },
+    ],
+  },
+  {
     key: "risk",
     title: "How much risk are you comfortable with?",
-    type: "radio" as const,
+    type: "radio",
     options: [
-      { value: "low", label: "Low — I want a known path" },
-      { value: "medium", label: "Medium — calculated bets" },
-      { value: "high", label: "High — I'd start something" },
+      { value: "low", label: "Low — I want a known, well-trodden path" },
+      { value: "medium", label: "Medium — calculated bets on the side" },
+      { value: "high", label: "High — I'd start something or join a startup" },
     ],
+  },
+  {
+    key: "location",
+    title: "Where do you want to live and work?",
+    helper: "Remote, specific city, willing to move for the right role?",
+    type: "textarea",
+    placeholder: "e.g. Remote-first, open to NYC or SF for 2-3 years, eventually back to Europe…",
+    optional: true,
   },
   {
     key: "constraints",
     title: "Any non-negotiables? (optional)",
-    helper: "Location, family, financial obligations, health.",
-    type: "textarea" as const,
+    helper: "Family obligations, financial constraints, health, visa status, anything that limits options.",
+    type: "textarea",
+    placeholder: "e.g. Need to support family financially within 2 years, no relocation outside the EU…",
+    optional: true,
   },
 ];
 
@@ -72,20 +109,20 @@ function QuizPage() {
   const [step, setStep] = useState(0);
   const [hydrating, setHydrating] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
 
-  // Load existing session
   useEffect(() => {
     if (!user) return;
     let active = true;
     (async () => {
       const { data, error } = await supabase
         .from("quiz_sessions")
-        .select("id, answers, current_step, completed")
+        .select("id, answers, current_step, completed, career_results")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false })
         .limit(1)
@@ -100,8 +137,9 @@ function QuizPage() {
         setSessionId(data.id);
         setAnswers((data.answers as Answers) ?? {});
         setStep(Math.min(data.current_step ?? 0, STEPS.length - 1));
-        if (data.completed) {
-          // jump to results-aware behaviour later; for now resume at step
+        if (data.completed && data.career_results) {
+          navigate({ to: "/results" });
+          return;
         }
       } else {
         const { data: created, error: createErr } = await supabase
@@ -117,25 +155,36 @@ function QuizPage() {
     return () => {
       active = false;
     };
-  }, [user]);
+  }, [user, navigate]);
 
   const persist = useCallback(
-    (nextAnswers: Answers, nextStep: number, completed = false) => {
+    (nextAnswers: Answers, nextStep: number) => {
       if (!sessionId) return;
       if (saveTimer.current) clearTimeout(saveTimer.current);
       setSaving(true);
       saveTimer.current = setTimeout(async () => {
         const { error } = await supabase
           .from("quiz_sessions")
-          .update({
-            answers: nextAnswers,
-            current_step: nextStep,
-            completed,
-          })
+          .update({ answers: nextAnswers, current_step: nextStep })
           .eq("id", sessionId);
         setSaving(false);
         if (error) toast.error("Couldn't save your progress");
       }, 500);
+    },
+    [sessionId],
+  );
+
+  const flushSave = useCallback(
+    async (nextAnswers: Answers, nextStep: number) => {
+      if (!sessionId) return;
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      setSaving(true);
+      const { error } = await supabase
+        .from("quiz_sessions")
+        .update({ answers: nextAnswers, current_step: nextStep })
+        .eq("id", sessionId);
+      setSaving(false);
+      if (error) throw error;
     },
     [sessionId],
   );
@@ -151,9 +200,6 @@ function QuizPage() {
       const next = step + 1;
       setStep(next);
       persist(answers, next);
-    } else {
-      persist(answers, step, true);
-      toast.success("Quiz complete — results coming soon!");
     }
   };
 
@@ -162,6 +208,40 @@ function QuizPage() {
       const next = step - 1;
       setStep(next);
       persist(answers, next);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!sessionId) return;
+    setGenerating(true);
+    try {
+      await flushSave(answers, step);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error("Session expired — please sign in again");
+        navigate({ to: "/auth" });
+        return;
+      }
+      const res = await fetch("/api/career/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ sessionId }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        toast.error(json.error || "Couldn't generate your paths");
+        return;
+      }
+      navigate({ to: "/results" });
+    } catch (e) {
+      console.error(e);
+      toast.error("Something went wrong. Try again.");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -175,7 +255,11 @@ function QuizPage() {
 
   const current = STEPS[step];
   const value = answers[current.key] ?? "";
-  const canAdvance = current.key === "constraints" || value.trim().length > 0;
+  const canAdvance = current.optional || value.trim().length > 0;
+  const isLast = step === STEPS.length - 1;
+  const allRequiredAnswered = STEPS.every(
+    (s) => s.optional || (answers[s.key] ?? "").trim().length > 0,
+  );
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
@@ -232,7 +316,7 @@ function QuizPage() {
             <Textarea
               value={value}
               onChange={(e) => updateAnswer(current.key, e.target.value.slice(0, 1000))}
-              placeholder="Type your answer…"
+              placeholder={current.placeholder ?? "Type your answer…"}
               rows={5}
               className="text-base"
             />
@@ -256,14 +340,39 @@ function QuizPage() {
           )}
         </div>
 
-        <div className="mt-10 flex items-center justify-between">
-          <Button variant="ghost" onClick={goBack} disabled={step === 0}>
+        <div className="mt-10 flex items-center justify-between gap-3">
+          <Button variant="ghost" onClick={goBack} disabled={step === 0 || generating}>
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
-          <Button variant="primary" onClick={goNext} disabled={!canAdvance}>
-            {step === STEPS.length - 1 ? "Finish" : "Continue"} <ArrowRight className="h-4 w-4" />
-          </Button>
+          {isLast ? (
+            <Button
+              variant="primary"
+              onClick={handleGenerate}
+              disabled={!allRequiredAnswered || generating}
+            >
+              {generating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Analyzing your fit…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" /> Generate my top 3 paths
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button variant="primary" onClick={goNext} disabled={!canAdvance || generating}>
+              Continue <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
         </div>
+
+        {isLast && !allRequiredAnswered && (
+          <p className="mt-4 text-right text-xs text-muted-foreground">
+            A few earlier questions are still empty. Go back and complete them to get accurate
+            results.
+          </p>
+        )}
       </main>
     </div>
   );
