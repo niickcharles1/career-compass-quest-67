@@ -171,7 +171,7 @@ export const Route = createFileRoute("/api/career/generate")({
           return jsonResponse({ error: "Session not found" }, 404);
         }
 
-        const answers = (session.answers as Record<string, string>) ?? {};
+        const answers: Record<string, string> = (session.answers ?? {}) as Record<string, string>;
         const userPrompt = `Based on this student's structured self-assessment, generate 3 tailored career paths.
 
 SKILLS THEY'RE GOOD AT:
