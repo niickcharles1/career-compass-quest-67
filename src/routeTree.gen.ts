@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiCareerGenerateRouteImport } from './routes/api.career.generate'
 
 const QuizRoute = QuizRouteImport.update({
   id: '/quiz',
@@ -28,35 +29,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCareerGenerateRoute = ApiCareerGenerateRouteImport.update({
+  id: '/api/career/generate',
+  path: '/api/career/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/quiz': typeof QuizRoute
+  '/api/career/generate': typeof ApiCareerGenerateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/quiz': typeof QuizRoute
+  '/api/career/generate': typeof ApiCareerGenerateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/quiz': typeof QuizRoute
+  '/api/career/generate': typeof ApiCareerGenerateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/quiz'
+  fullPaths: '/' | '/auth' | '/quiz' | '/api/career/generate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/quiz'
-  id: '__root__' | '/' | '/auth' | '/quiz'
+  to: '/' | '/auth' | '/quiz' | '/api/career/generate'
+  id: '__root__' | '/' | '/auth' | '/quiz' | '/api/career/generate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   QuizRoute: typeof QuizRoute
+  ApiCareerGenerateRoute: typeof ApiCareerGenerateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/career/generate': {
+      id: '/api/career/generate'
+      path: '/api/career/generate'
+      fullPath: '/api/career/generate'
+      preLoaderRoute: typeof ApiCareerGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   QuizRoute: QuizRoute,
+  ApiCareerGenerateRoute: ApiCareerGenerateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
