@@ -328,9 +328,52 @@ function NextStepsPage() {
             </Field>
           </div>
 
+          <div className="rounded-lg border border-dashed border-border bg-background/50 p-5">
+            <label className="mb-4 block font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              6. Your goals
+            </label>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field label="Target timeframe">
+                <select
+                  value={goalTimeframe}
+                  onChange={(e) => setGoalTimeframe(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-electric focus:outline-none"
+                >
+                  <option value="3_months">In 3 months</option>
+                  <option value="6_months">In 6 months</option>
+                  <option value="12_months">In 12 months</option>
+                  <option value="2_years">In 1-2 years</option>
+                  <option value="5_years">In 3-5 years</option>
+                </select>
+              </Field>
+              <Field label="Target salary (optional)">
+                <input
+                  type="text"
+                  placeholder="e.g. $80k, €60k"
+                  value={targetSalary}
+                  onChange={(e) => setTargetSalary(e.target.value)}
+                  maxLength={50}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-electric focus:outline-none"
+                />
+              </Field>
+            </div>
+            <div className="mt-4">
+              <Field label="Your #1 goal in your own words">
+                <textarea
+                  placeholder="e.g. Land a junior software role at a startup, or transition into UX design at my current company."
+                  value={primaryGoal}
+                  onChange={(e) => setPrimaryGoal(e.target.value)}
+                  maxLength={500}
+                  rows={2}
+                  className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-electric focus:outline-none"
+                />
+              </Field>
+            </div>
+          </div>
+
           <div>
             <label className="mb-3 block font-mono text-xs uppercase tracking-wider text-muted-foreground">
-              6. Upload your resume (optional, PDF / DOCX / TXT, 8MB max)
+              7. Upload your resume (optional, PDF / DOCX / TXT, 8MB max)
             </label>
             {resumeFile ? (
               <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
