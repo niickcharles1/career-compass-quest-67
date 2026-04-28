@@ -69,6 +69,9 @@ function NextStepsPage() {
   const [yearsExperience, setYearsExperience] = useState<string>("");
   const [currentRole, setCurrentRole] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
+  const [goalTimeframe, setGoalTimeframe] = useState<string>("12_months");
+  const [primaryGoal, setPrimaryGoal] = useState<string>("");
+  const [targetSalary, setTargetSalary] = useState<string>("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumePath, setResumePath] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
