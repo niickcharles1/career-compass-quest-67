@@ -42,8 +42,9 @@ export function FinalCTA() {
               variant="outline"
               size="lg"
               className="border-paper/20 bg-transparent text-paper hover:border-paper/40 hover:bg-paper/5"
+              asChild
             >
-              See a sample report
+              <a href="/auth?sample=1">See a sample report</a>
             </Button>
           </div>
 
