@@ -44,7 +44,7 @@ export function FinalCTA() {
               className="border-paper/20 bg-transparent text-paper hover:border-paper/40 hover:bg-paper/5"
               asChild
             >
-              <a href="/quiz?sample=1">See a sample report</a>
+              <a href="/auth?sample=1">See a sample report</a>
             </Button>
           </div>
 
