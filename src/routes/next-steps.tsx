@@ -641,6 +641,34 @@ function NextStepsPage() {
                 paste key bullets into the notes field.
               </p>
             )}
+
+            {resumePath && pathTitle && (
+              <div className="mt-4 flex flex-col gap-3 rounded-lg border border-electric/30 bg-electric/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-sm">
+                  <div className="font-medium">Tailor this resume for {pathTitle}</div>
+                  <div className="text-xs text-muted-foreground">
+                    AI rewrites your uploaded resume to fit this role — keywords, framing,
+                    and a tailored cover letter. Nothing is fabricated.
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleOptimizeResume}
+                  disabled={optimizing}
+                  className="shrink-0"
+                >
+                  {optimizing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Optimizing…
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="h-4 w-4" /> Optimize for this role
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col-reverse items-stretch justify-end gap-3 sm:flex-row sm:items-center">
