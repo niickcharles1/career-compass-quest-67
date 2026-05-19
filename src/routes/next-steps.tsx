@@ -13,6 +13,9 @@ import {
   Compass,
   Sparkles,
   X,
+  Wand2,
+  Copy,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { CareerResults, CareerPath } from "./api.career.generate";
 import type { NextStepsPlan } from "./api.nextsteps.generate";
+import type { ResumeOptimization } from "./api.resume.optimize";
 
 export const Route = createFileRoute("/next-steps")({
   component: NextStepsPage,
