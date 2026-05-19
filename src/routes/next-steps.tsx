@@ -13,6 +13,9 @@ import {
   Compass,
   Sparkles,
   X,
+  Wand2,
+  Copy,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { CareerResults, CareerPath } from "./api.career.generate";
 import type { NextStepsPlan } from "./api.nextsteps.generate";
+import type { ResumeOptimization } from "./api.resume.optimize";
 
 export const Route = createFileRoute("/next-steps")({
   component: NextStepsPage,
@@ -84,6 +88,8 @@ function NextStepsPage() {
 
   const [generating, setGenerating] = useState(false);
   const [plan, setPlan] = useState<NextStepsPlan | null>(null);
+  const [optimizing, setOptimizing] = useState(false);
+  const [optimization, setOptimization] = useState<ResumeOptimization | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -299,6 +305,52 @@ function NextStepsPage() {
       toast.error("Network error. Try again.");
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleOptimizeResume = async () => {
+    if (!resumePath || !pathTitle || optimizing) return;
+    setOptimizing(true);
+    setOptimization(null);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        toast.error("Please sign in again.");
+        navigate({ to: "/auth" });
+        return;
+      }
+      const res = await fetch("/api/resume/optimize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          pathTitle,
+          resumePath,
+          resumeMime: resumeFile?.type ?? null,
+          notes,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json?.error || "Couldn't optimize resume.");
+        return;
+      }
+      setOptimization(json.optimization as ResumeOptimization);
+      setTimeout(() => {
+        document
+          .getElementById("optimization-section")
+          ?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Try again.");
+    } finally {
+      setOptimizing(false);
     }
   };
 
@@ -589,6 +641,34 @@ function NextStepsPage() {
                 paste key bullets into the notes field.
               </p>
             )}
+
+            {resumePath && pathTitle && (
+              <div className="mt-4 flex flex-col gap-3 rounded-lg border border-electric/30 bg-electric/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-sm">
+                  <div className="font-medium">Tailor this resume for {pathTitle}</div>
+                  <div className="text-xs text-muted-foreground">
+                    AI rewrites your uploaded resume to fit this role — keywords, framing,
+                    and a tailored cover letter. Nothing is fabricated.
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleOptimizeResume}
+                  disabled={optimizing}
+                  className="shrink-0"
+                >
+                  {optimizing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Optimizing…
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="h-4 w-4" /> Optimize for this role
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col-reverse items-stretch justify-end gap-3 sm:flex-row sm:items-center">
@@ -615,9 +695,11 @@ function NextStepsPage() {
         </section>
 
         {/* Plan output */}
-        {plan && (
-          <PlanSection plan={plan} />
-        )}
+        {/* Plan output */}
+        {plan && <PlanSection plan={plan} />}
+
+        {/* Resume optimization output */}
+        {optimization && <OptimizationSection optimization={optimization} />}
       </main>
     </div>
   );
@@ -790,5 +872,149 @@ function ListBlock({
         ))}
       </ul>
     </div>
+  );
+}
+
+function OptimizationSection({ optimization }: { optimization: ResumeOptimization }) {
+  const copy = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(label + " copied.");
+    } catch {
+      toast.error("Couldn't copy. Select and copy manually.");
+    }
+  };
+
+  const download = (text: string, filename: string) => {
+    const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const safeSlug = optimization.pathTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return (
+    <motion.section
+      id="optimization-section"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="mt-12"
+    >
+      <div className="flex flex-col gap-6 rounded-xl border border-border bg-card p-6 md:p-8">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-electric">
+            Resume tailored
+          </p>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+            Optimized for {optimization.pathTitle}
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+            {optimization.summary}
+          </p>
+        </div>
+
+        {optimization.keywords.length > 0 && (
+          <div>
+            <h4 className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              ATS keywords
+            </h4>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {optimization.keywords.map((k, i) => (
+                <span
+                  key={i}
+                  className="rounded-full border border-border bg-background px-3 py-1 font-mono text-xs"
+                >
+                  {k}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-10">
+        <h3 className="font-display text-2xl font-semibold tracking-tight">
+          What changed
+        </h3>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          {optimization.changes.map((c, i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-border bg-card p-5"
+            >
+              <div className="font-mono text-xs uppercase tracking-wider text-electric">
+                {c.area}
+              </div>
+              <div className="mt-3 space-y-2 text-sm">
+                <div className="rounded-md border border-border bg-background p-3 text-muted-foreground line-through decoration-muted-foreground/40">
+                  {c.before}
+                </div>
+                <div className="rounded-md border border-electric/40 bg-electric/5 p-3">
+                  {c.after}
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">{c.why}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-10 rounded-xl border border-border bg-card p-6 md:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="font-display text-2xl font-semibold tracking-tight">
+            Optimized resume
+          </h3>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => copy(optimization.optimizedResume, "Resume")}
+            >
+              <Copy className="h-4 w-4" /> Copy
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                download(optimization.optimizedResume, "resume-" + safeSlug + ".md")
+              }
+            >
+              <Download className="h-4 w-4" /> Download .md
+            </Button>
+          </div>
+        </div>
+        <pre className="mt-5 max-h-[600px] overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-5 font-sans text-sm leading-relaxed">
+          {optimization.optimizedResume}
+        </pre>
+      </div>
+
+      <div className="mt-10 rounded-xl border border-border bg-card p-6 md:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="font-display text-2xl font-semibold tracking-tight">
+            Tailored cover letter
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => copy(optimization.coverLetterDraft, "Cover letter")}
+          >
+            <Copy className="h-4 w-4" /> Copy
+          </Button>
+        </div>
+        <pre className="mt-5 whitespace-pre-wrap rounded-lg border border-border bg-background p-5 font-sans text-sm leading-relaxed">
+          {optimization.coverLetterDraft}
+        </pre>
+      </div>
+    </motion.section>
   );
 }
