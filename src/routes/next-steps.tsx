@@ -308,6 +308,52 @@ function NextStepsPage() {
     }
   };
 
+  const handleOptimizeResume = async () => {
+    if (!resumePath || !pathTitle || optimizing) return;
+    setOptimizing(true);
+    setOptimization(null);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        toast.error("Please sign in again.");
+        navigate({ to: "/auth" });
+        return;
+      }
+      const res = await fetch("/api/resume/optimize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          pathTitle,
+          resumePath,
+          resumeMime: resumeFile?.type ?? null,
+          notes,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json?.error || "Couldn't optimize resume.");
+        return;
+      }
+      setOptimization(json.optimization as ResumeOptimization);
+      setTimeout(() => {
+        document
+          .getElementById("optimization-section")
+          ?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Try again.");
+    } finally {
+      setOptimizing(false);
+    }
+  };
+
   if (loading || hydrating) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
