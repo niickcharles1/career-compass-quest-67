@@ -88,6 +88,8 @@ function NextStepsPage() {
 
   const [generating, setGenerating] = useState(false);
   const [plan, setPlan] = useState<NextStepsPlan | null>(null);
+  const [optimizing, setOptimizing] = useState(false);
+  const [optimization, setOptimization] = useState<ResumeOptimization | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
