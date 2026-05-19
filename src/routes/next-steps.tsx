@@ -695,9 +695,11 @@ function NextStepsPage() {
         </section>
 
         {/* Plan output */}
-        {plan && (
-          <PlanSection plan={plan} />
-        )}
+        {/* Plan output */}
+        {plan && <PlanSection plan={plan} />}
+
+        {/* Resume optimization output */}
+        {optimization && <OptimizationSection optimization={optimization} />}
       </main>
     </div>
   );
