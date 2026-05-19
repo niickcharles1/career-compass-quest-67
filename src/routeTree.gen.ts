@@ -14,6 +14,7 @@ import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as NextStepsRouteImport } from './routes/next-steps'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiResumeOptimizeRouteImport } from './routes/api.resume.optimize'
 import { Route as ApiNextstepsGenerateRouteImport } from './routes/api.nextsteps.generate'
 import { Route as ApiCareerGenerateRouteImport } from './routes/api.career.generate'
 
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiResumeOptimizeRoute = ApiResumeOptimizeRouteImport.update({
+  id: '/api/resume/optimize',
+  path: '/api/resume/optimize',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiNextstepsGenerateRoute = ApiNextstepsGenerateRouteImport.update({
   id: '/api/nextsteps/generate',
   path: '/api/nextsteps/generate',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
   '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
+  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
   '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
+  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/results': typeof ResultsRoute
   '/api/career/generate': typeof ApiCareerGenerateRoute
   '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
+  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/results'
     | '/api/career/generate'
     | '/api/nextsteps/generate'
+    | '/api/resume/optimize'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/results'
     | '/api/career/generate'
     | '/api/nextsteps/generate'
+    | '/api/resume/optimize'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/results'
     | '/api/career/generate'
     | '/api/nextsteps/generate'
+    | '/api/resume/optimize'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   ResultsRoute: typeof ResultsRoute
   ApiCareerGenerateRoute: typeof ApiCareerGenerateRoute
   ApiNextstepsGenerateRoute: typeof ApiNextstepsGenerateRoute
+  ApiResumeOptimizeRoute: typeof ApiResumeOptimizeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/resume/optimize': {
+      id: '/api/resume/optimize'
+      path: '/api/resume/optimize'
+      fullPath: '/api/resume/optimize'
+      preLoaderRoute: typeof ApiResumeOptimizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/nextsteps/generate': {
       id: '/api/nextsteps/generate'
       path: '/api/nextsteps/generate'
@@ -183,7 +203,17 @@ const rootRouteChildren: RootRouteChildren = {
   ResultsRoute: ResultsRoute,
   ApiCareerGenerateRoute: ApiCareerGenerateRoute,
   ApiNextstepsGenerateRoute: ApiNextstepsGenerateRoute,
+  ApiResumeOptimizeRoute: ApiResumeOptimizeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
