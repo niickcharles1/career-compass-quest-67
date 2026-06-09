@@ -9,27 +9,160 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TranslatorRouteImport } from './routes/translator'
+import { Route as ResultsRouteImport } from './routes/results'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AssessmentRouteImport } from './routes/assessment'
+import { Route as ActionsRouteImport } from './routes/actions'
+import { Route as IndexRouteImport } from './routes/index'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const TranslatorRoute = TranslatorRouteImport.update({
+  id: '/translator',
+  path: '/translator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssessmentRoute = AssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsRoute = ActionsRouteImport.update({
+  id: '/actions',
+  path: '/actions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/actions': typeof ActionsRoute
+  '/assessment': typeof AssessmentRoute
+  '/dashboard': typeof DashboardRoute
+  '/results': typeof ResultsRoute
+  '/translator': typeof TranslatorRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/actions': typeof ActionsRoute
+  '/assessment': typeof AssessmentRoute
+  '/dashboard': typeof DashboardRoute
+  '/results': typeof ResultsRoute
+  '/translator': typeof TranslatorRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/actions': typeof ActionsRoute
+  '/assessment': typeof AssessmentRoute
+  '/dashboard': typeof DashboardRoute
+  '/results': typeof ResultsRoute
+  '/translator': typeof TranslatorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths:
+    | '/'
+    | '/actions'
+    | '/assessment'
+    | '/dashboard'
+    | '/results'
+    | '/translator'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to:
+    | '/'
+    | '/actions'
+    | '/assessment'
+    | '/dashboard'
+    | '/results'
+    | '/translator'
+  id:
+    | '__root__'
+    | '/'
+    | '/actions'
+    | '/assessment'
+    | '/dashboard'
+    | '/results'
+    | '/translator'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  ActionsRoute: typeof ActionsRoute
+  AssessmentRoute: typeof AssessmentRoute
+  DashboardRoute: typeof DashboardRoute
+  ResultsRoute: typeof ResultsRoute
+  TranslatorRoute: typeof TranslatorRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/translator': {
+      id: '/translator'
+      path: '/translator'
+      fullPath: '/translator'
+      preLoaderRoute: typeof TranslatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assessment': {
+      id: '/assessment'
+      path: '/assessment'
+      fullPath: '/assessment'
+      preLoaderRoute: typeof AssessmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions': {
+      id: '/actions'
+      path: '/actions'
+      fullPath: '/actions'
+      preLoaderRoute: typeof ActionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  ActionsRoute: ActionsRoute,
+  AssessmentRoute: AssessmentRoute,
+  DashboardRoute: DashboardRoute,
+  ResultsRoute: ResultsRoute,
+  TranslatorRoute: TranslatorRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
