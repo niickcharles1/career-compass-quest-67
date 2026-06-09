@@ -9,33 +9,36 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TranslatorRouteImport } from './routes/translator'
 import { Route as ResultsRouteImport } from './routes/results'
-import { Route as QuizRouteImport } from './routes/quiz'
-import { Route as NextStepsRouteImport } from './routes/next-steps'
-import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AssessmentRouteImport } from './routes/assessment'
+import { Route as ActionsRouteImport } from './routes/actions'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiResumeOptimizeRouteImport } from './routes/api.resume.optimize'
-import { Route as ApiNextstepsGenerateRouteImport } from './routes/api.nextsteps.generate'
-import { Route as ApiCareerGenerateRouteImport } from './routes/api.career.generate'
 
+const TranslatorRoute = TranslatorRouteImport.update({
+  id: '/translator',
+  path: '/translator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultsRoute = ResultsRouteImport.update({
   id: '/results',
   path: '/results',
   getParentRoute: () => rootRouteImport,
 } as any)
-const QuizRoute = QuizRouteImport.update({
-  id: '/quiz',
-  path: '/quiz',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NextStepsRoute = NextStepsRouteImport.update({
-  id: '/next-steps',
-  path: '/next-steps',
+const AssessmentRoute = AssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const ActionsRoute = ActionsRouteImport.update({
+  id: '/actions',
+  path: '/actions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,99 +46,77 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiResumeOptimizeRoute = ApiResumeOptimizeRouteImport.update({
-  id: '/api/resume/optimize',
-  path: '/api/resume/optimize',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiNextstepsGenerateRoute = ApiNextstepsGenerateRouteImport.update({
-  id: '/api/nextsteps/generate',
-  path: '/api/nextsteps/generate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCareerGenerateRoute = ApiCareerGenerateRouteImport.update({
-  id: '/api/career/generate',
-  path: '/api/career/generate',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/next-steps': typeof NextStepsRoute
-  '/quiz': typeof QuizRoute
+  '/actions': typeof ActionsRoute
+  '/assessment': typeof AssessmentRoute
+  '/dashboard': typeof DashboardRoute
   '/results': typeof ResultsRoute
-  '/api/career/generate': typeof ApiCareerGenerateRoute
-  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
-  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
+  '/translator': typeof TranslatorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/next-steps': typeof NextStepsRoute
-  '/quiz': typeof QuizRoute
+  '/actions': typeof ActionsRoute
+  '/assessment': typeof AssessmentRoute
+  '/dashboard': typeof DashboardRoute
   '/results': typeof ResultsRoute
-  '/api/career/generate': typeof ApiCareerGenerateRoute
-  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
-  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
+  '/translator': typeof TranslatorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/next-steps': typeof NextStepsRoute
-  '/quiz': typeof QuizRoute
+  '/actions': typeof ActionsRoute
+  '/assessment': typeof AssessmentRoute
+  '/dashboard': typeof DashboardRoute
   '/results': typeof ResultsRoute
-  '/api/career/generate': typeof ApiCareerGenerateRoute
-  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
-  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
+  '/translator': typeof TranslatorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/auth'
-    | '/next-steps'
-    | '/quiz'
+    | '/actions'
+    | '/assessment'
+    | '/dashboard'
     | '/results'
-    | '/api/career/generate'
-    | '/api/nextsteps/generate'
-    | '/api/resume/optimize'
+    | '/translator'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
-    | '/next-steps'
-    | '/quiz'
+    | '/actions'
+    | '/assessment'
+    | '/dashboard'
     | '/results'
-    | '/api/career/generate'
-    | '/api/nextsteps/generate'
-    | '/api/resume/optimize'
+    | '/translator'
   id:
     | '__root__'
     | '/'
-    | '/auth'
-    | '/next-steps'
-    | '/quiz'
+    | '/actions'
+    | '/assessment'
+    | '/dashboard'
     | '/results'
-    | '/api/career/generate'
-    | '/api/nextsteps/generate'
-    | '/api/resume/optimize'
+    | '/translator'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRoute
-  NextStepsRoute: typeof NextStepsRoute
-  QuizRoute: typeof QuizRoute
+  ActionsRoute: typeof ActionsRoute
+  AssessmentRoute: typeof AssessmentRoute
+  DashboardRoute: typeof DashboardRoute
   ResultsRoute: typeof ResultsRoute
-  ApiCareerGenerateRoute: typeof ApiCareerGenerateRoute
-  ApiNextstepsGenerateRoute: typeof ApiNextstepsGenerateRoute
-  ApiResumeOptimizeRoute: typeof ApiResumeOptimizeRoute
+  TranslatorRoute: typeof TranslatorRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/translator': {
+      id: '/translator'
+      path: '/translator'
+      fullPath: '/translator'
+      preLoaderRoute: typeof TranslatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/results': {
       id: '/results'
       path: '/results'
@@ -143,25 +124,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/quiz': {
-      id: '/quiz'
-      path: '/quiz'
-      fullPath: '/quiz'
-      preLoaderRoute: typeof QuizRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/next-steps': {
-      id: '/next-steps'
-      path: '/next-steps'
-      fullPath: '/next-steps'
-      preLoaderRoute: typeof NextStepsRouteImport
+    '/assessment': {
+      id: '/assessment'
+      path: '/assessment'
+      fullPath: '/assessment'
+      preLoaderRoute: typeof AssessmentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/actions': {
+      id: '/actions'
+      path: '/actions'
+      fullPath: '/actions'
+      preLoaderRoute: typeof ActionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -171,49 +152,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/resume/optimize': {
-      id: '/api/resume/optimize'
-      path: '/api/resume/optimize'
-      fullPath: '/api/resume/optimize'
-      preLoaderRoute: typeof ApiResumeOptimizeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/nextsteps/generate': {
-      id: '/api/nextsteps/generate'
-      path: '/api/nextsteps/generate'
-      fullPath: '/api/nextsteps/generate'
-      preLoaderRoute: typeof ApiNextstepsGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/career/generate': {
-      id: '/api/career/generate'
-      path: '/api/career/generate'
-      fullPath: '/api/career/generate'
-      preLoaderRoute: typeof ApiCareerGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRoute: AuthRoute,
-  NextStepsRoute: NextStepsRoute,
-  QuizRoute: QuizRoute,
+  ActionsRoute: ActionsRoute,
+  AssessmentRoute: AssessmentRoute,
+  DashboardRoute: DashboardRoute,
   ResultsRoute: ResultsRoute,
-  ApiCareerGenerateRoute: ApiCareerGenerateRoute,
-  ApiNextstepsGenerateRoute: ApiNextstepsGenerateRoute,
-  ApiResumeOptimizeRoute: ApiResumeOptimizeRoute,
+  TranslatorRoute: TranslatorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
