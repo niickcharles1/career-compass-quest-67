@@ -9,202 +9,36 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResultsRouteImport } from './routes/results'
-import { Route as QuizRouteImport } from './routes/quiz'
-import { Route as NextStepsRouteImport } from './routes/next-steps'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiResumeOptimizeRouteImport } from './routes/api.resume.optimize'
-import { Route as ApiNextstepsGenerateRouteImport } from './routes/api.nextsteps.generate'
-import { Route as ApiCareerGenerateRouteImport } from './routes/api.career.generate'
 
-const ResultsRoute = ResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QuizRoute = QuizRouteImport.update({
-  id: '/quiz',
-  path: '/quiz',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NextStepsRoute = NextStepsRouteImport.update({
-  id: '/next-steps',
-  path: '/next-steps',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiResumeOptimizeRoute = ApiResumeOptimizeRouteImport.update({
-  id: '/api/resume/optimize',
-  path: '/api/resume/optimize',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiNextstepsGenerateRoute = ApiNextstepsGenerateRouteImport.update({
-  id: '/api/nextsteps/generate',
-  path: '/api/nextsteps/generate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCareerGenerateRoute = ApiCareerGenerateRouteImport.update({
-  id: '/api/career/generate',
-  path: '/api/career/generate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/next-steps': typeof NextStepsRoute
-  '/quiz': typeof QuizRoute
-  '/results': typeof ResultsRoute
-  '/api/career/generate': typeof ApiCareerGenerateRoute
-  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
-  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/next-steps': typeof NextStepsRoute
-  '/quiz': typeof QuizRoute
-  '/results': typeof ResultsRoute
-  '/api/career/generate': typeof ApiCareerGenerateRoute
-  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
-  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
-}
+export interface FileRoutesByFullPath {}
+export interface FileRoutesByTo {}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/next-steps': typeof NextStepsRoute
-  '/quiz': typeof QuizRoute
-  '/results': typeof ResultsRoute
-  '/api/career/generate': typeof ApiCareerGenerateRoute
-  '/api/nextsteps/generate': typeof ApiNextstepsGenerateRoute
-  '/api/resume/optimize': typeof ApiResumeOptimizeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/auth'
-    | '/next-steps'
-    | '/quiz'
-    | '/results'
-    | '/api/career/generate'
-    | '/api/nextsteps/generate'
-    | '/api/resume/optimize'
+  fullPaths: never
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/auth'
-    | '/next-steps'
-    | '/quiz'
-    | '/results'
-    | '/api/career/generate'
-    | '/api/nextsteps/generate'
-    | '/api/resume/optimize'
-  id:
-    | '__root__'
-    | '/'
-    | '/auth'
-    | '/next-steps'
-    | '/quiz'
-    | '/results'
-    | '/api/career/generate'
-    | '/api/nextsteps/generate'
-    | '/api/resume/optimize'
+  to: never
+  id: '__root__'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRoute
-  NextStepsRoute: typeof NextStepsRoute
-  QuizRoute: typeof QuizRoute
-  ResultsRoute: typeof ResultsRoute
-  ApiCareerGenerateRoute: typeof ApiCareerGenerateRoute
-  ApiNextstepsGenerateRoute: typeof ApiNextstepsGenerateRoute
-  ApiResumeOptimizeRoute: typeof ApiResumeOptimizeRoute
-}
+export interface RootRouteChildren {}
 
 declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/results': {
-      id: '/results'
-      path: '/results'
-      fullPath: '/results'
-      preLoaderRoute: typeof ResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quiz': {
-      id: '/quiz'
-      path: '/quiz'
-      fullPath: '/quiz'
-      preLoaderRoute: typeof QuizRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/next-steps': {
-      id: '/next-steps'
-      path: '/next-steps'
-      fullPath: '/next-steps'
-      preLoaderRoute: typeof NextStepsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/resume/optimize': {
-      id: '/api/resume/optimize'
-      path: '/api/resume/optimize'
-      fullPath: '/api/resume/optimize'
-      preLoaderRoute: typeof ApiResumeOptimizeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/nextsteps/generate': {
-      id: '/api/nextsteps/generate'
-      path: '/api/nextsteps/generate'
-      fullPath: '/api/nextsteps/generate'
-      preLoaderRoute: typeof ApiNextstepsGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/career/generate': {
-      id: '/api/career/generate'
-      path: '/api/career/generate'
-      fullPath: '/api/career/generate'
-      preLoaderRoute: typeof ApiCareerGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
+  interface FileRoutesByPath {}
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AuthRoute: AuthRoute,
-  NextStepsRoute: NextStepsRoute,
-  QuizRoute: QuizRoute,
-  ResultsRoute: ResultsRoute,
-  ApiCareerGenerateRoute: ApiCareerGenerateRoute,
-  ApiNextstepsGenerateRoute: ApiNextstepsGenerateRoute,
-  ApiResumeOptimizeRoute: ApiResumeOptimizeRoute,
-}
+const rootRouteChildren: RootRouteChildren = {}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
