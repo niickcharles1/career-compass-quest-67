@@ -116,6 +116,10 @@ function Translator() {
           </div>
         </section>
 
+        <ResumeRewriter />
+
+
+
         <div className="mt-12 rounded-xl bg-primary p-7 text-center text-white shadow-elevated">
           <h3 className="text-xl font-bold">Ready for your action plan?</h3>
           <Link to="/actions" className="mt-5 inline-flex h-12 items-center justify-center rounded-lg bg-[var(--color-orange)] px-6 font-semibold text-white hover:opacity-90">
