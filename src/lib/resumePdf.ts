@@ -1,4 +1,3 @@
-import jsPDF from "jspdf";
 import { finalText, type ResumeLine } from "./resumeParser";
 
 const HEADING_WORDS = /^(experience|education|skills|projects|summary|profile|objective|certifications?|awards?|publications?|languages?|interests?|references?|volunteer(ing)?|leadership|activities|work experience|professional experience|technical skills|achievements?)\s*:?\s*$/i;
