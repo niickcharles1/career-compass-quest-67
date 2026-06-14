@@ -133,8 +133,8 @@ export function ResumeRewriter() {
     setError(null);
   }
 
-  function downloadPdf() {
-    const blob = buildResumePdf(lines);
+  async function downloadPdf() {
+    const blob = await buildResumePdf(lines);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
