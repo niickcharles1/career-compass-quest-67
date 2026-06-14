@@ -11,7 +11,8 @@ function isHeading(t: string): boolean {
   return false;
 }
 
-export function buildResumePdf(lines: ResumeLine[]): Blob {
+export async function buildResumePdf(lines: ResumeLine[]): Promise<Blob> {
+  const { default: jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageHeight = doc.internal.pageSize.getHeight();
   const pageWidth = doc.internal.pageSize.getWidth();
