@@ -16,23 +16,6 @@ const EXAMPLES: Record<string, string> = {
   "Academic competition finalist": "Reached the final of a national business case competition with a team of 4, presenting a market entry strategy for a retail brand",
 };
 
-  if (/\b(president|leader|chair|head|captain)\b/.test(lower)) {
-    return `Led a cross-functional team of stakeholders, coordinating ${topic}-focused initiatives and managing relationships across ${context} to deliver ${outcome}. Demonstrated leadership, ownership, and the ability to align diverse contributors around shared objectives.`;
-  }
-  if (/\b(thesis|dissertation|research)\b/.test(lower)) {
-    return `Conducted independent research on ${topic}, applying structured ${skill} methodology to identify ${outcome}. Demonstrated strong analytical reasoning, written communication, and the ability to defend findings to expert audiences.`;
-  }
-  if (/\b(project|assignment|coursework|competition|case)\b/.test(lower)) {
-    return `Delivered a ${topic} project under tight constraints, applying ${skill} to achieve ${outcome}. Demonstrated end-to-end ownership, time management, and the ability to translate analysis into actionable recommendations.`;
-  }
-  if (/\b(intern|internship|placement|trainee)\b/.test(lower)) {
-    return `Contributed to the ${topic} function during a structured placement, supporting ${skill} initiatives and developing hands-on experience in ${context}. Built professional credibility and produced ${outcome} valued by the team.`;
-  }
-  if (/\b(volunteer|community|ngo|charity)\b/.test(lower)) {
-    return `Volunteered to support ${topic}-related programs, contributing to ${outcome} while developing transferable ${skill} applicable to ${context}. Demonstrated initiative, civic engagement, and the ability to operate without formal authority.`;
-  }
-  return `Demonstrated ${skill} through work on ${topic}, delivering ${outcome} and developing transferable competencies applicable to ${context}. Demonstrated initiative, follow-through, and the ability to translate effort into outcomes.`;
-}
 
 function Translator() {
   const [input, setInput] = useState("");
