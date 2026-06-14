@@ -16,20 +16,6 @@ const EXAMPLES: Record<string, string> = {
   "Academic competition finalist": "Reached the final of a national business case competition with a team of 4, presenting a market entry strategy for a retail brand",
 };
 
-function extractKeywords(s: string) {
-  const words = s.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 3);
-  const stop = new Set(["with","that","this","from","were","have","been","into","about","there","their","when","what","just","some","more","they","them","also","than","then","over","very","much","many","most","such","like","other","which","because","while","where","these","those","through","being","both","each","under","after","before","during","without","within","between","across","make","made","work","working","worked","help","helped","helping","organized","managed","team"]);
-  return [...new Set(words.filter(w => !stop.has(w)))].slice(0, 5);
-}
-
-function translate(input: string): string {
-  const lower = input.toLowerCase();
-  const kws = extractKeywords(input);
-  const topic = kws[0] || "the focus area";
-  const skill = kws[1] || "core competencies";
-  const outcome = kws[2] || "measurable results";
-  const context = kws[3] || "a professional setting";
-
   if (/\b(president|leader|chair|head|captain)\b/.test(lower)) {
     return `Led a cross-functional team of stakeholders, coordinating ${topic}-focused initiatives and managing relationships across ${context} to deliver ${outcome}. Demonstrated leadership, ownership, and the ability to align diverse contributors around shared objectives.`;
   }
