@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { CCNav, CCFooter } from "@/components/cc/Nav";
 import { Copy, Check } from "lucide-react";
 import { markVisited } from "@/lib/assessment";
+import { translate } from "@/lib/translator";
+import { ResumeRewriter } from "@/components/cc/ResumeRewriter";
 
 export const Route = createFileRoute("/translator")({ component: Translator });
 
