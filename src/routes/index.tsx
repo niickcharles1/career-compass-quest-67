@@ -59,7 +59,7 @@ function Landing() {
         <section className="bg-primary px-5 py-20 text-white">
           <div className="mx-auto max-w-5xl">
             <h2 className="mx-auto max-w-3xl text-center text-3xl font-bold md:text-4xl">
-              The real reason you're struggling isn't effort. It's translation.
+              The real reason you're struggling isn't your effort.{"\n\n"}
             </h2>
             <div className="mt-12 grid gap-8 md:grid-cols-3">
               {[
