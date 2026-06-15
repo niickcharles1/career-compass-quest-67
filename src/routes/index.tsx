@@ -27,7 +27,7 @@ function Landing() {
                 See How It Works
               </a>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">Free · No account required · Takes 8 minutes</p>
+            <p className="mt-4 text-xs text-muted-foreground">Free · No account required · Takes 5 minutes</p>
           </div>
         </section>
 
@@ -94,7 +94,7 @@ function Landing() {
         <section className="bg-white px-5 py-20 text-center">
           <div className="mx-auto max-w-2xl">
             <h2 className="text-3xl font-bold text-primary md:text-4xl">Ready to find your direction?</h2>
-            <p className="mt-3 text-muted-foreground">It takes 8 minutes. No fluff, no generic advice.</p>
+            <p className="mt-3 text-muted-foreground">It takes 5 minutes. No fluff, no generic advice.</p>
             <Link to="/assessment" className="mt-8 inline-flex h-14 min-w-[240px] items-center justify-center rounded-lg bg-[var(--color-orange)] px-8 text-base font-semibold text-white shadow-elevated hover:opacity-90">
               Start My Assessment
             </Link>
