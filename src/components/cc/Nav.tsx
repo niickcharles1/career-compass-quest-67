@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Compass, Menu, X } from "lucide-react";
 
+const SoonBadge = () => (
+  <span className="ml-1.5 rounded-full bg-[var(--color-teal-soft)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-teal)]">
+    Soon
+  </span>
+);
+
 export function CCNav() {
   const [open, setOpen] = useState(false);
   return (
@@ -14,6 +20,8 @@ export function CCNav() {
         <nav className="hidden items-center gap-6 md:flex">
           <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary">Dashboard</Link>
           <Link to="/translator" className="text-sm font-medium text-muted-foreground hover:text-primary">Translator</Link>
+          <Link to="/cover-letter" className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary">Cover Letter<SoonBadge /></Link>
+          <Link to="/interview-coach" className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary">Interview Coach<SoonBadge /></Link>
           <Link to="/actions" className="text-sm font-medium text-muted-foreground hover:text-primary">Actions</Link>
           <Link to="/assessment" className="rounded-lg bg-[var(--color-orange)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Get Started</Link>
         </nav>
@@ -26,6 +34,8 @@ export function CCNav() {
           <div className="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-3">
             <Link to="/dashboard" className="rounded-md px-3 py-3 text-sm font-medium hover:bg-muted" onClick={() => setOpen(false)}>Dashboard</Link>
             <Link to="/translator" className="rounded-md px-3 py-3 text-sm font-medium hover:bg-muted" onClick={() => setOpen(false)}>Translator</Link>
+            <Link to="/cover-letter" className="flex items-center rounded-md px-3 py-3 text-sm font-medium hover:bg-muted" onClick={() => setOpen(false)}>Cover Letter<SoonBadge /></Link>
+            <Link to="/interview-coach" className="flex items-center rounded-md px-3 py-3 text-sm font-medium hover:bg-muted" onClick={() => setOpen(false)}>Interview Coach<SoonBadge /></Link>
             <Link to="/actions" className="rounded-md px-3 py-3 text-sm font-medium hover:bg-muted" onClick={() => setOpen(false)}>Actions</Link>
             <Link to="/assessment" className="mt-1 rounded-lg bg-[var(--color-orange)] px-4 py-3 text-center text-sm font-semibold text-white" onClick={() => setOpen(false)}>Get Started</Link>
           </div>
