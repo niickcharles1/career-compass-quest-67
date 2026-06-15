@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TranslatorRouteImport } from './routes/translator'
 import { Route as ResultsRouteImport } from './routes/results'
+import { Route as InterviewCoachRouteImport } from './routes/interview-coach'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CoverLetterRouteImport } from './routes/cover-letter'
 import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as ActionsRouteImport } from './routes/actions'
 import { Route as IndexRouteImport } from './routes/index'
@@ -26,9 +28,19 @@ const ResultsRoute = ResultsRouteImport.update({
   path: '/results',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InterviewCoachRoute = InterviewCoachRouteImport.update({
+  id: '/interview-coach',
+  path: '/interview-coach',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoverLetterRoute = CoverLetterRouteImport.update({
+  id: '/cover-letter',
+  path: '/cover-letter',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssessmentRoute = AssessmentRouteImport.update({
@@ -51,7 +63,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actions': typeof ActionsRoute
   '/assessment': typeof AssessmentRoute
+  '/cover-letter': typeof CoverLetterRoute
   '/dashboard': typeof DashboardRoute
+  '/interview-coach': typeof InterviewCoachRoute
   '/results': typeof ResultsRoute
   '/translator': typeof TranslatorRoute
 }
@@ -59,7 +73,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actions': typeof ActionsRoute
   '/assessment': typeof AssessmentRoute
+  '/cover-letter': typeof CoverLetterRoute
   '/dashboard': typeof DashboardRoute
+  '/interview-coach': typeof InterviewCoachRoute
   '/results': typeof ResultsRoute
   '/translator': typeof TranslatorRoute
 }
@@ -68,7 +84,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/actions': typeof ActionsRoute
   '/assessment': typeof AssessmentRoute
+  '/cover-letter': typeof CoverLetterRoute
   '/dashboard': typeof DashboardRoute
+  '/interview-coach': typeof InterviewCoachRoute
   '/results': typeof ResultsRoute
   '/translator': typeof TranslatorRoute
 }
@@ -78,7 +96,9 @@ export interface FileRouteTypes {
     | '/'
     | '/actions'
     | '/assessment'
+    | '/cover-letter'
     | '/dashboard'
+    | '/interview-coach'
     | '/results'
     | '/translator'
   fileRoutesByTo: FileRoutesByTo
@@ -86,7 +106,9 @@ export interface FileRouteTypes {
     | '/'
     | '/actions'
     | '/assessment'
+    | '/cover-letter'
     | '/dashboard'
+    | '/interview-coach'
     | '/results'
     | '/translator'
   id:
@@ -94,7 +116,9 @@ export interface FileRouteTypes {
     | '/'
     | '/actions'
     | '/assessment'
+    | '/cover-letter'
     | '/dashboard'
+    | '/interview-coach'
     | '/results'
     | '/translator'
   fileRoutesById: FileRoutesById
@@ -103,7 +127,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActionsRoute: typeof ActionsRoute
   AssessmentRoute: typeof AssessmentRoute
+  CoverLetterRoute: typeof CoverLetterRoute
   DashboardRoute: typeof DashboardRoute
+  InterviewCoachRoute: typeof InterviewCoachRoute
   ResultsRoute: typeof ResultsRoute
   TranslatorRoute: typeof TranslatorRoute
 }
@@ -124,11 +150,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/interview-coach': {
+      id: '/interview-coach'
+      path: '/interview-coach'
+      fullPath: '/interview-coach'
+      preLoaderRoute: typeof InterviewCoachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cover-letter': {
+      id: '/cover-letter'
+      path: '/cover-letter'
+      fullPath: '/cover-letter'
+      preLoaderRoute: typeof CoverLetterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assessment': {
@@ -159,7 +199,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActionsRoute: ActionsRoute,
   AssessmentRoute: AssessmentRoute,
+  CoverLetterRoute: CoverLetterRoute,
   DashboardRoute: DashboardRoute,
+  InterviewCoachRoute: InterviewCoachRoute,
   ResultsRoute: ResultsRoute,
   TranslatorRoute: TranslatorRoute,
 }
